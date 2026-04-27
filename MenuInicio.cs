@@ -43,7 +43,14 @@ namespace Opos
                 {
                     //Por implementar
                     case Opciones.Comenzar:
-                    Console.WriteLine("Iniciando...");
+                    Console.Clear();
+                    /*
+                    Examen ex = new();
+                    foreach (Pregunta preg in)
+                    {
+                        
+                    }
+                    */
                     break;
                     case Opciones.Cargar:
                     Console.WriteLine("Cargando...");

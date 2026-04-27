@@ -95,7 +95,7 @@ namespace Opos
             // Añadir la última pregunta del fichero
             if (preguntaActual != null) preguntas.Add(preguntaActual);
 
-            Console.WriteLine($" -> Se ha cargado el archivo: {rutaArchivo}");
+            Console.WriteLine($"\n -> Se ha cargado el archivo: {rutaArchivo}");
             Console.WriteLine($" -> Preguntas leídas: {preguntas.Count}");
 
             // Guardamos las respuestas

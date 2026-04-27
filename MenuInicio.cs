@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Opos
 {
-    enum Opciones { Comenzar, Cargar, Instrucciones, Salir }
+    public enum Opciones { Comenzar, Cargar, Instrucciones, Salir }
+
     public struct MenuInicio
     {
 
         #region Propiedades Campos
         private static sbyte numOpc = (sbyte)Enum.GetValues(typeof(Opciones)).Length;
+
         private static string _tituloConsola = "OPOS";
         private static string _titulo = """
 
@@ -29,41 +32,19 @@ namespace Opos
         private List<string>? _listaOpciones;
         #endregion
         #region Metodos
-        public async Task CargarMenu()
+        public async Task<Opciones> CargarMenu()
         {
             Console.Title = _tituloConsola;
             if (_listaOpciones == null)
             {
-                for (sbyte indice = numOpc; indice >= 0; indice--)
+                _listaOpciones = new List<string>();
+                foreach (string opc in Enum.GetNames(typeof(Opciones)))
                 {
-                    _listaOpciones?.Add(((Opciones)indice).ToString());
+                    _listaOpciones.Add(opc);
                 }
-                
-                switch  (await MostrarOpciones())
-                {
-                    //Por implementar
-                    case Opciones.Comenzar:
-                    Console.Clear();
-                    /*
-                    Examen ex = new();
-                    foreach (Pregunta preg in)
-                    {
-                        
-                    }
-                    */
-                    break;
-                    case Opciones.Cargar:
-                    Console.WriteLine("Cargando...");
-                    break;
-                    case Opciones.Instrucciones:
-                    break;
-                    case Opciones.Salir:
-                    Console.WriteLine("Cerrando...");
-                    break;
-                    default:
-                    break;
-                }   
             }
+            Opciones? seleccion = await MostrarOpciones();
+            return seleccion ?? Opciones.Salir;
         }
 
         private async Task<Opciones?> MostrarOpciones()
@@ -76,10 +57,10 @@ namespace Opos
 
             do
             {
-                Console.SetCursorPosition(0,0);
+                Console.SetCursorPosition(0, 0);
                 Console.CursorVisible = false;
                 Console.Clear();
-                Console.WriteLine(_titulo); 
+                Console.WriteLine(_titulo);
                 Console.WriteLine("\n Use las flechas [↑/↓] para navegar y [Enter] para seleccionar:\n");
 
                 for (int i = 0; i < opciones.Length; i++)

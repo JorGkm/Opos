@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Opos
 {
-    public class Examen
+    public struct Examen
     {
         
         public List<Pregunta>? preguntasExamen;

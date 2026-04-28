@@ -31,7 +31,7 @@ namespace Opos
         private List<string>? _listaOpciones;
         #endregion
         #region Metodos
-        public async Task<Opciones> CargarMenu()
+        public Opciones? CargarMenu()
         {
             Console.Title = _tituloConsola;
             if (_listaOpciones == null)
@@ -42,11 +42,11 @@ namespace Opos
                     _listaOpciones.Add(opc);
                 }
             }
-            Opciones? seleccion = await MostrarOpciones();
+            Opciones? seleccion =  MostrarOpciones();
             return seleccion ?? Opciones.Salir;
         }
 
-        private async Task<Opciones?> MostrarOpciones()
+        private Opciones? MostrarOpciones()
         {
             int indiceSeleccionado = 0;
             ConsoleKey tecla;

@@ -12,7 +12,7 @@ class Program
         bool buclePrincipal = true;
         while (buclePrincipal)
         {
-            Opciones seleccion = await oposMenu.CargarMenu();
+            Opciones? seleccion =  oposMenu.CargarMenu();
 
             switch (seleccion)
             {

@@ -7,6 +7,7 @@ namespace Opos
 {
     public class Pregunta
     {
+        public string Tema { get; set; } = "General";
         public int NumeroPregunta { get; set; }
         public string? Enunciado { get; set; }
         public List<string> Opciones { get; set; } 

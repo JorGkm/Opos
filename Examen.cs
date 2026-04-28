@@ -15,13 +15,6 @@ namespace Opos
         {
             cronoExamen = new();
             preguntasExamen = new();
-            cronoExamen.Start();
-        }
-        private async Task MostrarResultados()
-        {
-            Console.WriteLine("[RESULTADOS]");
-            Console.WriteLine(new String ('=', 12));
-            Console.WriteLine($"Tiempo transcurrido: {cronoExamen.Elapsed}");
         }
     }
 }

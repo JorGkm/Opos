@@ -36,60 +36,58 @@ namespace Opos
             //Guardamos por separado las preguntas y las respuestas
             string textoPreguntas = partes[0];
             string textoRespuestas = (partes.Length > 1) ? partes[1] : "";
-            
-            
+
+
             var lineas = textoPreguntas.Split('\n');
             Pregunta? preguntaActual = null;
-            //Comprobamos los enunciados y las opciones posibles (respuestas)
+            string temaActual = "General"; 
+
             Regex regexInicio = new Regex(@"^\s*(\d+)[\.\-](?!\d)\s*(.*)");
-            
             Regex regexOpcion = new Regex(@"^([a-d])\)\s*(.*)", RegexOptions.IgnoreCase);
+            Regex regexTema = new Regex(@"^TEMA\s+(\d+)", RegexOptions.IgnoreCase);
 
             foreach (var l in lineas)
             {
                 string linea = l.Trim();
                 if (string.IsNullOrWhiteSpace(linea)) continue;
-                
+
+                // Cambio o no de tema
+                var matchTema = regexTema.Match(linea);
+                if (matchTema.Success)
+                {
+                    temaActual = "Tema " + matchTema.Groups[1].Value;
+                    continue; 
+                }
+
                 var matchPregunta = regexInicio.Match(linea);
                 var matchOpcion = regexOpcion.Match(linea);
 
-                //Detección de otra pregunta nueva
-                bool pareceNuevaPregunta = matchPregunta.Success;
-
-                //En caso de que haya números en los enunciados y no sean nuevas preguntas
-                if (pareceNuevaPregunta && preguntaActual != null && preguntaActual.Opciones.Count == 0)
+                // Pregunta nueva o no
+                if (matchPregunta.Success)
                 {
-                    pareceNuevaPregunta = false; // Lo forzamos a ser texto normal
-                }
-
-                if (pareceNuevaPregunta)
-                {
-                    // Guardamos la anterior si estaba completa
+                    // Guardamos la anterior para crear la nueva pregunta
                     if (preguntaActual != null && preguntaActual.Opciones.Count >= 2)
                         preguntas.Add(preguntaActual);
 
                     preguntaActual = new Pregunta
                     {
                         NumeroPregunta = int.Parse(matchPregunta.Groups[1].Value),
-                        Enunciado = matchPregunta.Groups[2].Value
+                        Enunciado = matchPregunta.Groups[2].Value,
+                        Tema = temaActual // <--- Aquí le asignamos el tema que detectamos antes
                     };
                 }
+                // Opciones de respuesta
                 else if (matchOpcion.Success && preguntaActual != null)
                 {
                     preguntaActual.Opciones.Add(matchOpcion.Groups[2].Value);
                 }
+                // Texto de sobra
                 else if (preguntaActual != null)
                 {
-                    // Es texto continuado (del enunciado o de la última opción)
-                    if (preguntaActual.Opciones.Count == 0) 
-                    {
+                    if (preguntaActual.Opciones.Count == 0)
                         preguntaActual.Enunciado += " " + linea;
-                    }
-                    else if(preguntaActual.Opciones.Count < 5) 
-                    {
-                        // Añadimos a la última opción detectada
+                    else
                         preguntaActual.Opciones[preguntaActual.Opciones.Count - 1] += " " + linea;
-                    }
                 }
             }
             // Añadir la última pregunta del fichero
@@ -103,7 +101,7 @@ namespace Opos
 
             // Limpieza básica
             textoRespuestas = textoRespuestas.Replace("PREG", "").Replace("RESP", "").Replace("Página", "");
-            
+
             // Regex para tabla de respuestas
             Regex regexResp = new Regex(@"(\d+)[\s\r\n]+([A-D])", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             var coincidencias = regexResp.Matches(textoRespuestas);
@@ -131,7 +129,7 @@ namespace Opos
                 }
             }
             Console.WriteLine($" -> Respuestas vinculadas: {respuestasAsignadas}");
-            return  preguntas;
+            return preguntas;
         }
     }
 }

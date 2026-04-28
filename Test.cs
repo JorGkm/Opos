@@ -139,7 +139,8 @@ namespace Opos
             Console.WriteLine($"Tiempo: {_examen.cronoExamen.Elapsed:mm\\:ss}");
             Console.WriteLine($"Tiempo de respuesta: {tmpRespuestas.Average():N2} segundos");
             Console.WriteLine("=================================");
-            Console.ReadKey();
+            Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+            Console.ReadKey(true);
         }
 
         private (double nCalculada, double nSinPenalizar) CalculoNota(int a, int f, int s)

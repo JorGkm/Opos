@@ -28,7 +28,6 @@ namespace Opos
              \______/ \__|       \______/  \______/ 
                                                                      
         """;
-        private bool _cerrar;
         private List<string>? _listaOpciones;
         #endregion
         #region Metodos

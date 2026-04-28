@@ -21,7 +21,7 @@ namespace Opos
                 return preguntas;
             }
 
-            string contenidoTotal = File.ReadAllText(rutaArchivo, Encoding.UTF8);
+            string contenidoTotal = await File.ReadAllTextAsync(rutaArchivo, Encoding.UTF8);
 
             //Separamos las preguntas de las respuestas
             string[] partes = contenidoTotal.Split(new string[] { "### RESPUESTAS ###" }, StringSplitOptions.None);

@@ -19,7 +19,7 @@ class Program
                 case Opciones.Cargar:
                     string ruta = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "preguntas.txt");
                     poolPreguntas = await miImportador.CargarDesdeTexto(ruta);
-                    Console.WriteLine($"\n[SISTEMA] Pulsa cualquier tecla para continuar");
+                    Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
                     Console.ReadKey();
                     break;
 
@@ -33,19 +33,30 @@ class Program
                             List<string> opcionesMenu = new List<string> { "TODOS LOS TEMAS" };
                             opcionesMenu.AddRange(testActual.Temas);
                             Console.WriteLine("Se han detectado varios Temas. ¿Qué quieres hacer?");
-                            string TemaSeleccionado = await MostrarOpciones(testActual.Temas);
-                            string seleccionUsuario = await MostrarOpciones(opcionesMenu);
+                            string seleccionUsuario =  MostrarOpciones(opcionesMenu);
 
                             if (seleccionUsuario != "TODOS LOS TEMAS")
                             {
                                 testActual.Filtrar(seleccionUsuario);
                             }
                         }
+                        Console.Clear();
+                        Console.WriteLine("Selecciona el sistema de puntuación:");
+                        string penalizacionElegida =  MostrarOpciones(testActual.opcionesPenalizacion);
+
+                        testActual.Penalizacion = penalizacionElegida switch
+                        {
+                            "Oposición (3 mal restan 1)" => ModoPenalizacion.TresMalUnaBien,
+                            "Duro (2 mal restan 1)" => ModoPenalizacion.DosMalUnaBien,
+                            "Muerte súbita (1 mal resta 1)" => ModoPenalizacion.UnaMalUnaBien,
+                            _ => ModoPenalizacion.SinPenalizacion
+                        };
                         testActual.IniciarExamen();
                     }
                     else
                     {
                         Console.WriteLine("\n[!] Primero debes cargar las preguntas.");
+                        Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
                         Console.ReadKey();
                     }
                     break;
@@ -56,7 +67,7 @@ class Program
             }
         }
     }
-    private static async Task<string> MostrarOpciones(List<string> listaOpc)
+    private static string MostrarOpciones(List<string> listaOpc)
     {
         int indiceSeleccionado = 0;
         ConsoleKey tecla;

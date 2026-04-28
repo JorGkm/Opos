@@ -14,7 +14,7 @@ namespace Opos
         public Examen(List<Pregunta> preg)
         {
             cronoExamen = new();
-            preguntasExamen = new();
+            preguntasExamen = preg;
         }
     }
 }

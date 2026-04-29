@@ -2,16 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Opos
 {
     public enum ModoPenalizacion
     {
-        SinPenalizacion, // Las malas no restan
-        TresMalUnaBien,  // (resta 0.33)
-        DosMalUnaBien,   // (resta 0.50)
-        UnaMalUnaBien    // (resta 1.00)
+        SinPenalizacion,
+        TresMalUnaBien,
+        DosMalUnaBien,
+        UnaMalUnaBien
     }
     public class Test
     {
@@ -35,11 +34,9 @@ namespace Opos
         public Test(Examen ex)
         {
             _examen = ex;
-            // Primero, las seleccionadas todas
             PreguntasSeleccionadas = ex.preguntasExamen ?? new List<Pregunta>();
         }
 
-        // Método para filtrar la lista antes de empezar
         public void Filtrar(string temaElegido)
         {
             if (_examen.preguntasExamen == null) return;
@@ -49,7 +46,6 @@ namespace Opos
                 .ToList();
         }
 
-        // Método para lanzar el bucle de preguntas
         public void IniciarExamen()
         {
             if (PreguntasSeleccionadas == null || PreguntasSeleccionadas.Count == 0)
@@ -60,10 +56,8 @@ namespace Opos
                 return;
             }
 
-            Stopwatch TiempoRespuesta = new();
-            Decimal TmpActual = 0;
-            List<decimal> Tiempos = [];
-            if (PreguntasSeleccionadas.Count == 0) return;
+            Stopwatch tiempoRespuesta = new();
+            List<decimal> tiempos = [];
 
             int aciertos = 0;
             int fallos = 0;
@@ -86,17 +80,16 @@ namespace Opos
                     Console.WriteLine($"{letra}) {opcion}");
                     letra++;
                 }
-                //Le va sumando al valor interno unicode y suma hasta completar las opciones
 
                 Console.Write("\nTu respuesta (A, B, C, D o 'S' para Saltar): ");
 
-                TiempoRespuesta.Start();
+                tiempoRespuesta.Start();
 
                 char respuestaUsuario = char.ToUpper(Console.ReadKey(true).KeyChar);
 
-                TiempoRespuesta.Stop();
-                TmpActual = (decimal)TiempoRespuesta.Elapsed.TotalSeconds;
-                Tiempos.Add(TmpActual);
+                tiempoRespuesta.Stop();
+                tiempos.Add((decimal)tiempoRespuesta.Elapsed.TotalSeconds);
+                tiempoRespuesta.Reset();
 
                 if (respuestaUsuario == 'S')
                 {
@@ -122,20 +115,20 @@ namespace Opos
             }
 
             _examen.cronoExamen.Stop();
-            MostrarResultadosFinales(aciertos, fallos, saltos, Tiempos);
+            MostrarResultadosFinales(aciertos, fallos, saltos, tiempos);
         }
 
 
-        private void MostrarResultadosFinales(int a, int f, int s, List<Decimal> tmpRespuestas)
+        private void MostrarResultadosFinales(int a, int f, int s, List<decimal> tmpRespuestas)
         {
-            (double notaCalculada, double notaSinPenzalizar) = CalculoNota(a, f, s);
+            (double notaCalculada, double notaSinPenalizar) = CalculoNota(a, f, s);
             Console.Clear();
             Console.WriteLine("======= EXAMEN FINALIZADO =======");
             Console.WriteLine($"Aciertos: {a}");
             Console.WriteLine($"Fallos: {f}");
             Console.WriteLine($"Abstenciones: {s}");
-            Console.WriteLine($"Puntuación sin penalizar: {notaSinPenzalizar:F2} de {a + f + s} preguntas");
-            Console.WriteLine($"Nota final: {notaCalculada:N3}"); // Nota sobre 10
+            Console.WriteLine($"Puntuación sin penalizar: {notaSinPenalizar:F2} de {a + f + s} preguntas");
+            Console.WriteLine($"Nota final: {notaCalculada:N3}");
             Console.WriteLine($"Tiempo: {_examen.cronoExamen.Elapsed:mm\\:ss}");
             Console.WriteLine($"Tiempo de respuesta: {tmpRespuestas.Average():N2} segundos");
             Console.WriteLine("=================================");
@@ -156,10 +149,10 @@ namespace Opos
             double notaNeto = a - resta;
             int totalPreguntas = a + f + s;
 
-            // Sobre 10
+            double notaSinPenalizar = ((double)a / totalPreguntas) * 10;
             double notaFinal = (notaNeto / totalPreguntas) * 10;
             if (notaFinal < 0) notaFinal = 0;
-            return (notaFinal, notaFinal);
+            return (notaFinal, notaSinPenalizar);
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Opos;
 
@@ -12,13 +15,16 @@ class Program
         bool buclePrincipal = true;
         while (buclePrincipal)
         {
-            Opciones? seleccion =  oposMenu.CargarMenu();
+            Opciones? seleccion = oposMenu.CargarMenu();
 
             switch (seleccion)
             {
                 case Opciones.Cargar:
-                    string ruta = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "preguntas.txt");
-                    poolPreguntas = await miImportador.CargarDesdeTexto(ruta);
+                    string ruta = SolicitarRutaArchivo();
+                    if (!string.IsNullOrEmpty(ruta))
+                    {
+                        poolPreguntas = await miImportador.CargarDesdeTexto(ruta);
+                    }
                     Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
                     Console.ReadKey();
                     break;
@@ -26,14 +32,14 @@ class Program
                 case Opciones.Comenzar:
                     if (poolPreguntas.Count > 0)
                     {
-                        Examen nuevoExamen = new Examen(poolPreguntas);
+                        Examen nuevoExamen = new(poolPreguntas);
                         Test testActual = new(nuevoExamen);
                         if (testActual.Temas != null && testActual.Temas?.Count > 1)
                         {
                             List<string> opcionesMenu = new List<string> { "TODOS LOS TEMAS" };
                             opcionesMenu.AddRange(testActual.Temas);
                             Console.WriteLine("Se han detectado varios Temas. ¿Qué quieres hacer?");
-                            string seleccionUsuario =  MostrarOpciones(opcionesMenu);
+                            string seleccionUsuario = UIHelper.MostrarOpciones(opcionesMenu);
 
                             if (seleccionUsuario != "TODOS LOS TEMAS")
                             {
@@ -42,7 +48,7 @@ class Program
                         }
                         Console.Clear();
                         Console.WriteLine("Selecciona el sistema de puntuación:");
-                        string penalizacionElegida =  MostrarOpciones(testActual.opcionesPenalizacion);
+                        string penalizacionElegida = UIHelper.MostrarOpciones(testActual.opcionesPenalizacion);
 
                         testActual.Penalizacion = penalizacionElegida switch
                         {
@@ -61,57 +67,44 @@ class Program
                     }
                     break;
 
+                case Opciones.Instrucciones:
+                    MostrarInstrucciones();
+                    Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+                    Console.ReadKey();
+                    break;
+
                 case Opciones.Salir:
                     buclePrincipal = false;
                     break;
             }
         }
     }
-    private static string MostrarOpciones(List<string> listaOpc)
+
+    private static string SolicitarRutaArchivo()
     {
-        int indiceSeleccionado = 0;
-        ConsoleKey tecla;
-        bool elegido = false;
-        do
-        {
-            Console.SetCursorPosition(0, 0);
-            Console.CursorVisible = false;
-            Console.Clear();
-            Console.WriteLine("\n Use las flechas [↑/↓] para navegar y [Enter] para seleccionar:\n");
-            for (int i = 0; i < listaOpc.Count; i++)
-            {
-                if (i == indiceSeleccionado)
-                {
-                    // Resaltamos la opción seleccionada
-                    Console.BackgroundColor = ConsoleColor.Black;
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"  > {listaOpc[i]}");
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.WriteLine($"  {listaOpc[i]}  ");
-                }
-            }
+        Console.Clear();
+        Console.WriteLine("Introduce la ruta del archivo de preguntas (.txt)");
+        Console.WriteLine("(Puedes pegar la ruta o arrastrar el archivo aquí)\n");
+        Console.Write("Ruta por defecto: ");
 
-            // Leemos la tecla 
-            tecla = Console.ReadKey(true).Key;
+        string rutaPorDefecto = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "preguntas.txt");
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine(rutaPorDefecto);
+        Console.ResetColor();
+        Console.WriteLine("\nPulsa Enter para usar la ruta por defecto, o escribe la ruta:");
+        Console.Write("Ruta> ");
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.CursorVisible = true;
 
-            if (tecla == ConsoleKey.UpArrow)
-            {
-                indiceSeleccionado = (indiceSeleccionado == 0) ? listaOpc.Count - 1 : indiceSeleccionado - 1;
-            }
-            else if (tecla == ConsoleKey.DownArrow)
-            {
-                indiceSeleccionado = (indiceSeleccionado == listaOpc.Count - 1) ? 0 : indiceSeleccionado + 1;
-            }
-            else if (tecla == ConsoleKey.Enter)
-            {
-                elegido = true;
-            }
+        string? entrada = Console.ReadLine()?.Trim();
+        Console.ResetColor();
+        return string.IsNullOrWhiteSpace(entrada) ? rutaPorDefecto : entrada.Trim('"');
+    }
 
-        } while (!elegido);
-
-        return listaOpc[indiceSeleccionado];
+    private static void MostrarInstrucciones()
+    {
+        Console.Clear();
+        string? instrucciones = File.ReadAllText("instrucciones.txt");
+        Console.WriteLine(instrucciones);
     }
 }

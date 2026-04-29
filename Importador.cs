@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -23,7 +22,6 @@ namespace Opos
 
             string contenidoTotal = await File.ReadAllTextAsync(rutaArchivo, Encoding.UTF8);
 
-            //Separamos las preguntas de las respuestas
             string[] partes = contenidoTotal.Split(new string[] { "### RESPUESTAS ###" }, StringSplitOptions.None);
 
             if (partes.Length < 2)
@@ -33,7 +31,6 @@ namespace Opos
                 Console.ResetColor();
             }
 
-            //Guardamos por separado las preguntas y las respuestas
             string textoPreguntas = partes[0];
             string textoRespuestas = (partes.Length > 1) ? partes[1] : "";
 
@@ -51,7 +48,6 @@ namespace Opos
                 string linea = l.Trim();
                 if (string.IsNullOrWhiteSpace(linea)) continue;
 
-                // Cambio o no de tema
                 var matchTema = regexTema.Match(linea);
                 if (matchTema.Success)
                 {
@@ -62,10 +58,8 @@ namespace Opos
                 var matchPregunta = regexInicio.Match(linea);
                 var matchOpcion = regexOpcion.Match(linea);
 
-                // Pregunta nueva o no
                 if (matchPregunta.Success)
                 {
-                    // Guardamos la anterior para crear la nueva pregunta
                     if (preguntaActual != null && preguntaActual.Opciones.Count >= 2)
                         preguntas.Add(preguntaActual);
 
@@ -73,15 +67,13 @@ namespace Opos
                     {
                         NumeroPregunta = int.Parse(matchPregunta.Groups[1].Value),
                         Enunciado = matchPregunta.Groups[2].Value,
-                        Tema = temaActual // <--- Aquí le asignamos el tema que detectamos antes
+                        Tema = temaActual
                     };
                 }
-                // Opciones de respuesta
                 else if (matchOpcion.Success && preguntaActual != null)
                 {
                     preguntaActual.Opciones.Add(matchOpcion.Groups[2].Value);
                 }
-                // Texto de sobra
                 else if (preguntaActual != null)
                 {
                     if (preguntaActual.Opciones.Count == 0)
@@ -90,19 +82,15 @@ namespace Opos
                         preguntaActual.Opciones[preguntaActual.Opciones.Count - 1] += " " + linea;
                 }
             }
-            // Añadir la última pregunta del fichero
             if (preguntaActual != null) preguntas.Add(preguntaActual);
 
             Console.WriteLine($"\n -> Se ha cargado el archivo: {rutaArchivo}");
             Console.WriteLine($" -> Preguntas leídas: {preguntas.Count}");
 
-            // Guardamos las respuestas
             Dictionary<int, char> respuestas = new Dictionary<int, char>();
 
-            // Limpieza básica
             textoRespuestas = textoRespuestas.Replace("PREG", "").Replace("RESP", "").Replace("Página", "");
 
-            // Regex para tabla de respuestas
             Regex regexResp = new Regex(@"(\d+)[\s\r\n]+([A-D])", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             var coincidencias = regexResp.Matches(textoRespuestas);
             Console.WriteLine($" -> Respuestas detectadas en tabla: {coincidencias.Count}");
@@ -114,7 +102,6 @@ namespace Opos
                 if (!respuestas.ContainsKey(num)) respuestas.Add(num, letra);
             }
 
-            // Añadimos a cada pregunta su respuesta correcta
             int respuestasAsignadas = 0;
             foreach (var p in preguntas)
             {

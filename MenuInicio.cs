@@ -1,22 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Opos
 {
     public enum Opciones { Comenzar, Cargar, Instrucciones, Salir }
 
-    public struct MenuInicio
+    public class MenuInicio
     {
-
-        #region Propiedades Campos
-        private static sbyte numOpc = (sbyte)Enum.GetValues(typeof(Opciones)).Length;
-
-        private static string _tituloConsola = "OPOS";
-        private static string _titulo = """
+        private const string _tituloConsola = "OPOS";
+        private const string _titulo = """
 
              $$$$$$\  $$$$$$$\   $$$$$$\   $$$$$$\  
             $$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ 
@@ -28,31 +20,19 @@ namespace Opos
              \______/ \__|       \______/  \______/ 
                                                                      
         """;
-        private List<string>? _listaOpciones;
-        #endregion
-        #region Metodos
+
         public Opciones? CargarMenu()
         {
             Console.Title = _tituloConsola;
-            if (_listaOpciones == null)
-            {
-                _listaOpciones = new List<string>();
-                foreach (string opc in Enum.GetNames(typeof(Opciones)))
-                {
-                    _listaOpciones.Add(opc);
-                }
-            }
-            Opciones? seleccion =  MostrarOpciones();
-            return seleccion ?? Opciones.Salir;
+            return MostrarOpciones() ?? Opciones.Salir;
         }
 
         private Opciones? MostrarOpciones()
         {
+            string[] opciones = Enum.GetNames(typeof(Opciones));
             int indiceSeleccionado = 0;
             ConsoleKey tecla;
             bool elegido = false;
-            // Obtenemos los nombres de las opciones del Enum que ya tienes
-            string[] opciones = Enum.GetNames(typeof(Opciones));
 
             do
             {
@@ -66,7 +46,6 @@ namespace Opos
                 {
                     if (i == indiceSeleccionado)
                     {
-                        // Resaltamos la opción seleccionada
                         Console.BackgroundColor = ConsoleColor.Black;
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine($"  > {opciones[i]}");
@@ -78,7 +57,6 @@ namespace Opos
                     }
                 }
 
-                // Leemos la tecla 
                 tecla = Console.ReadKey(true).Key;
 
                 if (tecla == ConsoleKey.UpArrow)
@@ -98,17 +76,5 @@ namespace Opos
 
             return (Opciones)indiceSeleccionado;
         }
-
-        private void InsertarOpcion(string opcionNueva)
-        {
-            if (_listaOpciones != null && _listaOpciones.Contains(opcionNueva))
-            {
-                Console.WriteLine($"La opcion: {opcionNueva}\nYa existe en el menú");
-            }
-            else _listaOpciones?.Add(opcionNueva);
-        }
-        #endregion
-
-
     }
 }

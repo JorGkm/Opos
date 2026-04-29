@@ -1,0 +1,51 @@
+╔══════════════════════════════════════════╗
+║          INSTRUCCIONES DE USO            ║
+╚══════════════════════════════════════════╝
+
+1. CREAR TU ARCHIVO DE PREGUNTAS
+────────────────────────────────
+Crea un archivo de texto (.txt) en tu escritorio llamado "preguntas.txt"
+con el siguiente formato:
+
+TEMA 1
+1. ¿Cuál es la capital de España?
+a) Barcelona
+b) Madrid
+c) Sevilla
+d) Valencia
+
+2. ¿Cuántas comunidades autónomas tiene España?
+a) 15
+b) 17
+c) 19
+d) 20
+
+### RESPUESTAS ###
+PREG 1 - RESP: B
+PREG 2 - RESP: B
+
+2. FORMATO OBLIGATORIO
+────────────────────────
+- Las preguntas deben empezar con número seguido de punto o guión: "1. " o "1- "
+- Las opciones deben usar letras a) b) c) d)
+- El separador de respuestas es exactamente: ### RESPUESTAS ###
+- Para separar temas usa: TEMA 1, TEMA 2, etc.
+- Las respuestas se pueden escribir en formato tabla
+
+3. USAR OPOS
+────────────
+- Selecciona "Cargar" y pega la ruta de tu archivo .txt
+  (también puedes arrastrar el archivo a la consola)
+- Si el archivo tiene varios temas, podrás elegir un tema concreto
+- Elige el tipo de penalización que prefieras
+- Responde cada pregunta con A, B, C, D o S para saltar
+- Al finalizar verás tus resultados detallados
+
+4. TIPOS DE PENALIZACIÓN
+─────────────────────────
+• Estándar     → Los fallos no restan
+• Oposición    → 3 fallos restan 1 acierto
+• Duro         → 2 fallos restan 1 acierto
+• Muerte súbita→ 1 fallo resta 1 acierto
+
+══════════════════════════════════════════

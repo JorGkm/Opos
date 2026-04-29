@@ -11,6 +11,7 @@ class Program
     {
         MenuInicio oposMenu = new();
         Importador miImportador = new();
+        GestorBD bd = new();
         List<Pregunta> poolPreguntas = new();
         bool buclePrincipal = true;
         while (buclePrincipal)
@@ -33,7 +34,7 @@ class Program
                     if (poolPreguntas.Count > 0)
                     {
                         Examen nuevoExamen = new(poolPreguntas);
-                        Test testActual = new(nuevoExamen);
+                        Test testActual = new(nuevoExamen, bd);
                         if (testActual.Temas != null && testActual.Temas?.Count > 1)
                         {
                             List<string> opcionesMenu = new List<string> { "TODOS LOS TEMAS" };
@@ -65,6 +66,12 @@ class Program
                         Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
                         Console.ReadKey();
                     }
+                    break;
+
+                case Opciones.Estadisticas:
+                    EstadisticasView.Mostrar(bd);
+                    Console.WriteLine($"\n\n[Opos] Pulsa cualquier tecla para continuar");
+                    Console.ReadKey();
                     break;
 
                 case Opciones.Instrucciones:

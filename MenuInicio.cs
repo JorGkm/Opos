@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Opos
 {
-    public enum Opciones { Comenzar, Cargar, Instrucciones, Salir }
+    public enum Opciones { Comenzar, Cargar, Estadisticas, Instrucciones, Salir }
 
     public class MenuInicio
     {

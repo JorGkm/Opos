@@ -65,4 +65,15 @@ Selección directa:
 • Duro         → 2 fallos restan 1 acierto
 • Muerte súbita→ 1 fallo resta 1 acierto
 
+6. ESTADÍSTICAS Y PROGRESO
+──────────────────────────
+- Selecciona "Estadísticas" en el menú principal
+- Opos guarda automáticamente cada examen que realizas
+- Podrás ver:
+  • Resumen general: total exámenes, nota media, mejor y peor nota
+  • Historial de los últimos 20 exámenes con fecha, tema, nota y tiempo
+  • Temas más fallados con barra visual de porcentaje de error
+  • Top 10 preguntas más falladas con su respuesta correcta
+- Los datos se guardan en una base de datos local (opos.db)
+
 ══════════════════════════════════════════

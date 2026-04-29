@@ -15,6 +15,7 @@ namespace Opos
     public class Test
     {
         private Examen _examen;
+        private GestorBD _bd;
 
         public ModoPenalizacion Penalizacion { get; set; } = ModoPenalizacion.SinPenalizacion;
         public List<string> opcionesPenalizacion = new List<string> {
@@ -31,9 +32,10 @@ namespace Opos
 
         public List<Pregunta> PreguntasSeleccionadas { get; private set; }
 
-        public Test(Examen ex)
+        public Test(Examen ex, GestorBD bd)
         {
             _examen = ex;
+            _bd = bd;
             PreguntasSeleccionadas = ex.preguntasExamen ?? new List<Pregunta>();
         }
 
@@ -59,6 +61,7 @@ namespace Opos
             }
 
             List<decimal> tiempos = [];
+            List<Pregunta> preguntasFalladas = new();
 
             int aciertos = 0;
             int fallos = 0;
@@ -89,6 +92,7 @@ namespace Opos
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"\nFALLASTE. La correcta era la {preg.RespuestaCorrecta}");
                     fallos++;
+                    preguntasFalladas.Add(preg);
                 }
                 Console.ResetColor();
                 Console.WriteLine("\nPulsa una tecla para la siguiente...");
@@ -96,7 +100,29 @@ namespace Opos
             }
 
             _examen.cronoExamen.Stop();
-            MostrarResultadosFinales(aciertos, fallos, saltos, tiempos);
+            (double nota, double notaSinPen) = CalculoNota(aciertos, fallos, saltos);
+
+            string temaFiltro = PreguntasSeleccionadas.Count < (_examen.preguntasExamen?.Count ?? 0)
+                ? PreguntasSeleccionadas[0].Tema + (PreguntasSeleccionadas[0].NombreTema != null ? $" - {PreguntasSeleccionadas[0].NombreTema}" : "")
+                : "Todos los temas";
+
+            var resultado = new ExamenResultado
+            {
+                Fecha = DateTime.Now,
+                Tema = temaFiltro,
+                TotalPreguntas = aciertos + fallos + saltos,
+                Aciertos = aciertos,
+                Fallos = fallos,
+                Saltos = saltos,
+                Nota = nota,
+                NotaSinPenalizar = notaSinPen,
+                Penalizacion = opcionesPenalizacion[(int)Penalizacion],
+                TiempoSegundos = (int)_examen.cronoExamen.Elapsed.TotalSeconds,
+                TiempoMedioRespuesta = (double)tiempos.Average()
+            };
+
+            _bd.GuardarExamen(resultado, preguntasFalladas);
+            MostrarResultadosFinales(aciertos, fallos, saltos, tiempos, nota, notaSinPen);
         }
 
         private char LeerRespuesta(Pregunta preg, int numeroActual, out decimal tiempoFinal)
@@ -177,19 +203,19 @@ namespace Opos
         }
 
 
-        private void MostrarResultadosFinales(int a, int f, int s, List<decimal> tmpRespuestas)
+        private void MostrarResultadosFinales(int a, int f, int s, List<decimal> tmpRespuestas, double nota, double notaSinPen)
         {
-            (double notaCalculada, double notaSinPenalizar) = CalculoNota(a, f, s);
             Console.Clear();
             Console.WriteLine("======= EXAMEN FINALIZADO =======");
             Console.WriteLine($"Aciertos: {a}");
             Console.WriteLine($"Fallos: {f}");
             Console.WriteLine($"Abstenciones: {s}");
-            Console.WriteLine($"Puntuación sin penalizar: {notaSinPenalizar:F2} de {a + f + s} preguntas");
-            Console.WriteLine($"Nota final: {notaCalculada:N3}");
+            Console.WriteLine($"Puntuación sin penalizar: {notaSinPen:F2} de {a + f + s} preguntas");
+            Console.WriteLine($"Nota final: {nota:N3}");
             Console.WriteLine($"Tiempo: {_examen.cronoExamen.Elapsed:mm\\:ss}");
             Console.WriteLine($"Tiempo de respuesta: {tmpRespuestas.Average():N2} segundos");
             Console.WriteLine("=================================");
+            Console.WriteLine($"\n[!] Resultados guardados en base de datos");
             Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
             Console.ReadKey(true);
         }

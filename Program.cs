@@ -10,189 +10,189 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        MenuInicio oposMenu = new();
-        Importador miImportador = new();
-        GestorBD bd = new();
-        List<Pregunta> poolPreguntas = new();
-        bool buclePrincipal = true;
-        while (buclePrincipal)
+        StartMenu oposMenu = new();
+        QuestionImporter importer = new();
+        DatabaseManager db = new();
+        List<Question> questionPool = new();
+        bool running = true;
+        while (running)
         {
-            Opciones? seleccion = oposMenu.CargarMenu();
+            MenuOption? selection = oposMenu.Show();
 
-            switch (seleccion)
+            switch (selection)
             {
-                case Opciones.Cargar:
-                    string ruta = SolicitarRutaArchivo();
-                    if (!string.IsNullOrEmpty(ruta))
+                case MenuOption.Load:
+                    string filePath = PromptFilePath();
+                    if (!string.IsNullOrEmpty(filePath))
                     {
-                        poolPreguntas = await miImportador.CargarDesdeTexto(ruta);
+                        questionPool = await importer.LoadFromText(filePath);
                     }
-                    Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+                    Console.WriteLine("\n[Opos] Press any key to continue");
                     Console.ReadKey();
                     break;
 
-                case Opciones.Comenzar:
-                    if (poolPreguntas.Count > 0)
+                case MenuOption.Start:
+                    if (questionPool.Count > 0)
                     {
-                        List<string> modoExamen = new List<string> { "Examen normal", "Repaso de fallos" };
-                        string modoElegido = UIHelper.MostrarOpciones(modoExamen);
+                        List<string> examModes = new List<string> { "Standard Exam", "Failed Questions Review" };
+                        string chosenMode = MenuUI.ShowSelectionMenu(examModes);
 
-                        Test testActual;
+                        TestSession? testSession;
 
-                        if (modoElegido == "Repaso de fallos")
+                        if (chosenMode == "Failed Questions Review")
                         {
-                            Test? testRepaso = PrepararRepaso(poolPreguntas, bd);
-                            if (testRepaso == null) break;
-                            testActual = testRepaso;
+                            TestSession? reviewSession = PrepareReview(questionPool, db);
+                            if (reviewSession == null) break;
+                            testSession = reviewSession;
                         }
                         else
                         {
-                            Examen nuevoExamen = new(poolPreguntas);
-                            testActual = new Test(nuevoExamen, bd);
+                            Exam newExam = new(questionPool);
+                            testSession = new TestSession(newExam, db);
 
-                            if (testActual.Temas != null && testActual.Temas?.Count > 1)
+                            if (testSession.Topics != null && testSession.Topics?.Count > 1)
                             {
-                                List<string> opcionesMenu = new List<string> { "TODOS LOS TEMAS" };
-                                opcionesMenu.AddRange(testActual.Temas);
-                                Console.WriteLine("Se han detectado varios Temas. ¿Qué quieres hacer?");
-                                string seleccionUsuario = UIHelper.MostrarOpciones(opcionesMenu);
+                                List<string> topicOptions = new List<string> { "ALL TOPICS" };
+                                topicOptions.AddRange(testSession.Topics);
+                                Console.WriteLine("Multiple topics detected. What do you want to do?");
+                                string userSelection = MenuUI.ShowSelectionMenu(topicOptions);
 
-                                if (seleccionUsuario != "TODOS LOS TEMAS")
+                                if (userSelection != "ALL TOPICS")
                                 {
-                                    testActual.Filtrar(seleccionUsuario);
+                                    testSession.FilterByTopic(userSelection);
                                 }
                             }
                         }
 
                         Console.Clear();
-                        List<string> opcionesAleatorio = new List<string> {
-                            "Sin aleatorizar",
-                            "Aleatorizar preguntas",
-                            "Aleatorizar opciones de respuesta",
-                            "Aleatorizar preguntas y opciones"
+                        List<string> shuffleOptions = new List<string> {
+                            "No shuffling",
+                            "Shuffle questions",
+                            "Shuffle answer options",
+                            "Shuffle both"
                         };
-                        Console.WriteLine("¿Cómo quieres que se presenten las preguntas?");
-                        string aleatorioElegido = UIHelper.MostrarOpciones(opcionesAleatorio);
+                        Console.WriteLine("How do you want questions to be presented?");
+                        string chosenShuffle = MenuUI.ShowSelectionMenu(shuffleOptions);
 
-                        testActual.AleatorizarPreguntas = aleatorioElegido.Contains("preguntas");
-                        testActual.AleatorizarOpciones = aleatorioElegido.Contains("opciones");
+                        testSession.ShuffleQuestions = chosenShuffle.Contains("questions");
+                        testSession.ShuffleOptions = chosenShuffle.Contains("options");
 
                         Console.Clear();
-                        Console.WriteLine("Selecciona el sistema de puntuación:");
-                        string penalizacionElegida = UIHelper.MostrarOpciones(testActual.opcionesPenalizacion);
+                        Console.WriteLine("Select scoring system:");
+                        string chosenPenalty = MenuUI.ShowSelectionMenu(testSession.PenaltyOptions);
 
-                        testActual.Penalizacion = penalizacionElegida switch
+                        testSession.Penalty = chosenPenalty switch
                         {
-                            "Oposición (3 mal restan 1)" => ModoPenalizacion.TresMalUnaBien,
-                            "Duro (2 mal restan 1)" => ModoPenalizacion.DosMalUnaBien,
-                            "Muerte súbita (1 mal resta 1)" => ModoPenalizacion.UnaMalUnaBien,
-                            _ => ModoPenalizacion.SinPenalizacion
+                            "Opposition (3 wrong deduct 1)" => PenaltyMode.ThreeWrongOneRight,
+                            "Hard (2 wrong deduct 1)" => PenaltyMode.TwoWrongOneRight,
+                            "Sudden Death (1 wrong deduct 1)" => PenaltyMode.OneWrongOneRight,
+                            _ => PenaltyMode.NoPenalty
                         };
-                        testActual.IniciarExamen();
+                        testSession.StartExam();
                     }
                     else
                     {
-                        Console.WriteLine("\n[!] Primero debes cargar las preguntas.");
-                        Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+                        Console.WriteLine("\n[!] You must load questions first.");
+                        Console.WriteLine("\n[Opos] Press any key to continue");
                         Console.ReadKey();
                     }
                     break;
 
-                case Opciones.Estadisticas:
-                    EstadisticasView.Mostrar(bd);
-                    Console.WriteLine($"\n\n[Opos] Pulsa cualquier tecla para continuar");
+                case MenuOption.Statistics:
+                    StatisticsView.Show(db);
+                    Console.WriteLine("\n\n[Opos] Press any key to continue");
                     Console.ReadKey();
                     break;
 
-                case Opciones.Instrucciones:
-                    MostrarInstrucciones();
-                    Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+                case MenuOption.Instructions:
+                    ShowInstructions();
+                    Console.WriteLine("\n[Opos] Press any key to continue");
                     Console.ReadKey();
                     break;
 
-                case Opciones.Salir:
-                    buclePrincipal = false;
+                case MenuOption.Exit:
+                    running = false;
                     break;
             }
         }
     }
 
-    private static Test? PrepararRepaso(List<Pregunta> pool, GestorBD bd)
+    private static TestSession? PrepareReview(List<Question> pool, DatabaseManager db)
     {
-        int totalFallos = bd.TotalFallosUnicos();
-        if (totalFallos == 0)
+        int totalMisses = db.TotalUniqueMisses();
+        if (totalMisses == 0)
         {
-            Console.WriteLine("\nNo hay preguntas falladas registradas todavía.");
-            Console.WriteLine("¡Realiza algún examen primero!");
-            Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+            Console.WriteLine("\nNo missed questions recorded yet.");
+            Console.WriteLine("Take an exam first!");
+            Console.WriteLine("\n[Opos] Press any key to continue");
             Console.ReadKey();
             return null;
         }
 
-        List<FalloUnico> fallosUnicos = bd.ObtenerFallosUnicos();
-        List<Pregunta> preguntasRepaso = new();
+        List<UniqueMiss> uniqueMisses = db.GetUniqueMisses();
+        List<Question> reviewQuestions = new();
 
-        foreach (var fallo in fallosUnicos)
+        foreach (var miss in uniqueMisses)
         {
-            Pregunta? coincidencia = pool.FirstOrDefault(p =>
-                p.Enunciado == fallo.Enunciado && p.Tema == fallo.Tema);
+            Question? match = pool.FirstOrDefault(q =>
+                q.Text == miss.QuestionText && q.Topic == miss.Topic);
 
-            if (coincidencia != null)
+            if (match != null)
             {
-                Pregunta copia = new()
+                Question copy = new()
                 {
-                    Tema = coincidencia.Tema,
-                    NombreTema = coincidencia.NombreTema,
-                    NumeroPregunta = coincidencia.NumeroPregunta,
-                    Enunciado = coincidencia.Enunciado,
-                    Opciones = new List<string>(coincidencia.Opciones),
-                    RespuestaCorrecta = fallo.RespuestaCorrecta
+                    Topic = match.Topic,
+                    TopicName = match.TopicName,
+                    QuestionNumber = match.QuestionNumber,
+                    Text = match.Text,
+                    Options = new List<string>(match.Options),
+                    CorrectAnswer = miss.CorrectAnswer
                 };
-                preguntasRepaso.Add(copia);
+                reviewQuestions.Add(copy);
             }
         }
 
-        if (preguntasRepaso.Count == 0)
+        if (reviewQuestions.Count == 0)
         {
-            Console.WriteLine($"\nSe encontraron {totalFallos} fallos, pero no coinciden con las preguntas cargadas.");
-            Console.WriteLine("Carga el archivo de preguntas original para poder repasar.");
-            Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+            Console.WriteLine($"\nFound {totalMisses} misses, but they don't match the loaded questions.");
+            Console.WriteLine("Load the original question file to enable review mode.");
+            Console.WriteLine("\n[Opos] Press any key to continue");
             Console.ReadKey();
             return null;
         }
 
-        Console.WriteLine($"\nSe encontraron {preguntasRepaso.Count} preguntas para repasar de {totalFallos} fallos registrados.");
-        Console.WriteLine($"\n[Opos] Pulsa cualquier tecla para continuar");
+        Console.WriteLine($"\nFound {reviewQuestions.Count} questions for review out of {totalMisses} recorded misses.");
+        Console.WriteLine("\n[Opos] Press any key to continue");
         Console.ReadKey();
 
-        return new Test(preguntasRepaso, bd);
+        return new TestSession(reviewQuestions, db);
     }
 
-    private static string SolicitarRutaArchivo()
+    private static string PromptFilePath()
     {
         Console.Clear();
-        Console.WriteLine("Introduce la ruta del archivo de preguntas (.txt)");
-        Console.WriteLine("(Puedes pegar la ruta o arrastrar el archivo aquí)\n");
-        Console.Write("Ruta por defecto: ");
+        Console.WriteLine("Enter the path to your questions file (.txt)");
+        Console.WriteLine("(You can paste the path or drag and drop the file here)\n");
+        Console.Write("Default path: ");
 
-        string rutaPorDefecto = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "preguntas.txt");
+        string defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "preguntas.txt");
         Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine(rutaPorDefecto);
+        Console.WriteLine(defaultPath);
         Console.ResetColor();
-        Console.WriteLine("\nPulsa Enter para usar la ruta por defecto, o escribe la ruta:");
-        Console.Write("Ruta> ");
+        Console.WriteLine("\nPress Enter to use default, or type the path:");
+        Console.Write("Path> ");
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.CursorVisible = true;
 
-        string? entrada = Console.ReadLine()?.Trim();
+        string? input = Console.ReadLine()?.Trim();
         Console.ResetColor();
-        return string.IsNullOrWhiteSpace(entrada) ? rutaPorDefecto : entrada.Trim('"');
+        return string.IsNullOrWhiteSpace(input) ? defaultPath : input.Trim('"');
     }
 
-    private static void MostrarInstrucciones()
+    private static void ShowInstructions()
     {
         Console.Clear();
-        string? instrucciones = File.ReadAllText("instrucciones.txt");
-        Console.WriteLine(instrucciones);
+        string? instructions = File.ReadAllText("instructions.txt");
+        Console.WriteLine(instructions);
     }
 }

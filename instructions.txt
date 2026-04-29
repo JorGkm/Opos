@@ -1,0 +1,93 @@
+====================================================
+                  USAGE INSTRUCTIONS
+====================================================
+
+1. CREATE YOUR QUESTIONS FILE
+─────────────────────────────
+Create a text file (.txt) and name it anything you like.
+The question format must be:
+
+TOPIC 1 - The Spanish Constitution
+1. What is the capital of Spain?
+a) Barcelona
+b) Madrid
+c) Seville
+d) Valencia
+
+2. How many autonomous communities does Spain have?
+a) 15
+b) 17
+c) 19
+d) 20
+
+### RESPUESTAS ###
+PREG 1 - RESP: B
+PREG 2 - RESP: B
+
+2. REQUIRED FORMAT
+──────────────────
+- Topics are declared with: TEMA <number>
+- Optionally add a topic name:
+    TEMA 1 - The Spanish Constitution
+    TEMA 2: Fundamental Rights
+    TEMA 3 - State Organization
+- Questions must start with a number followed by a dot or dash: "1. " or "1- "
+- Options must use letters: a) b) c) d)
+- The answers separator is exactly: ### RESPUESTAS ###
+- Answers can be written in table format
+
+3. USING OPOS
+─────────────
+- Select "Load" and enter the path to your .txt file
+  (you can also drag and drop the file into the console)
+- If the file has multiple topics, you can choose a specific one
+- Choose your preferred penalty type
+- Answer each question (see controls below)
+- At the end you will see your detailed results
+
+4. TEST CONTROLS
+─────────────────
+Both methods work simultaneously:
+
+Visual Navigation:
+  ↑ / ↓     Navigate between options
+  Enter     Confirm selected option
+  Space     Skip the question
+
+Direct Input:
+  A / B / C / D     Answer directly
+  S                 Skip the question
+
+5. PENALTY MODES
+─────────────────
+• Standard       → Wrong answers don't deduct
+• Opposition     → 3 wrong deduct 1 correct
+• Hard           → 2 wrong deduct 1 correct
+• Sudden Death   → 1 wrong deduct 1 correct
+
+6. STATISTICS & PROGRESS
+─────────────────────────
+- Select "Statistics" from the main menu
+- Opos automatically saves every exam you take
+- You can view:
+  • General summary: total exams, average, best and worst scores
+  • History of last 20 exams with date, topic, score and time
+  • Weakest topics with visual failure rate bars
+  • Top 10 most frequently missed questions with correct answer
+- Data is stored in a local database (opos.db)
+
+7. FAILED QUESTIONS REVIEW
+───────────────────────────
+- When starting a test, choose "Failed Questions Review"
+- Opos will retrieve all questions you have previously answered incorrectly
+- Only includes questions matching the loaded file
+- Ideal for reinforcing your weak points
+
+8. SHUFFLE QUESTIONS
+────────────────────
+- Before each test you can choose to shuffle:
+  • Questions: changes the order they appear
+  • Options: mixes A/B/C/D order for each question
+- Prevents memorizing positions and forces real learning
+
+====================================================

@@ -247,7 +247,8 @@ class Program
     {
         Console.Clear();
         string fileName = I18n.CurrentLanguage == "es" ? "instrucciones.txt" : "instructions.txt";
-        string? instructions = File.ReadAllText(fileName);
+        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", fileName);
+        string? instructions = File.ReadAllText(filePath);
         Console.WriteLine(instructions);
     }
 }

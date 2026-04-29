@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.Json;
 
 namespace Opos;
@@ -8,15 +9,16 @@ public static class I18n
 {
     private static Dictionary<string, string> _translations = new();
     private static string _currentLanguage = "en";
+    private static string _jsonPath;
 
     public static string CurrentLanguage => _currentLanguage;
 
     public static void Initialize()
     {
-        string jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "translations.json");
-        if (!System.IO.File.Exists(jsonPath)) return;
+        _jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "translations.json");
+        if (!File.Exists(_jsonPath)) return;
 
-        string json = System.IO.File.ReadAllText(jsonPath);
+        string json = File.ReadAllText(_jsonPath);
         var root = JsonSerializer.Deserialize<JsonElement>(json);
 
         string defaultLang = root.GetProperty("defaultLanguage").GetString() ?? "en";
@@ -31,17 +33,18 @@ public static class I18n
 
     public static void SetLanguage(string langCode)
     {
-        string jsonPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "translations.json");
-        if (!System.IO.File.Exists(jsonPath)) return;
+        if (!File.Exists(_jsonPath)) return;
 
-        string json = System.IO.File.ReadAllText(jsonPath);
-        var root = JsonSerializer.Deserialize<JsonElement>(json);
+        string json = File.ReadAllText(_jsonPath);
+        var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
 
         var languages = root.GetProperty("languages");
         if (languages.TryGetProperty(langCode, out var langElement))
         {
             _currentLanguage = langCode;
             LoadLanguage(langElement);
+            PersistLanguage(langCode);
         }
     }
 
@@ -52,6 +55,32 @@ public static class I18n
         {
             _translations[prop.Name] = prop.Value.GetString() ?? "";
         }
+    }
+
+    private static void PersistLanguage(string langCode)
+    {
+        string json = File.ReadAllText(_jsonPath);
+        var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        var updatedRoot = new Dictionary<string, object>();
+        updatedRoot["defaultLanguage"] = langCode;
+
+        var languagesDict = new Dictionary<string, Dictionary<string, string>>();
+        foreach (var lang in root.GetProperty("languages").EnumerateObject())
+        {
+            var entries = new Dictionary<string, string>();
+            foreach (var prop in lang.Value.EnumerateObject())
+            {
+                entries[prop.Name] = prop.Value.GetString() ?? "";
+            }
+            languagesDict[lang.Name] = entries;
+        }
+        updatedRoot["languages"] = languagesDict;
+
+        string updatedJson = JsonSerializer.Serialize(updatedRoot, options);
+        File.WriteAllText(_jsonPath, updatedJson);
     }
 
     public static string T(string key, params object[] args)

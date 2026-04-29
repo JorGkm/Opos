@@ -221,4 +221,38 @@ public class GestorBD
 
         return (0, 0, 0, 0);
     }
+
+    public List<FalloUnico> ObtenerFallosUnicos()
+    {
+        var fallos = new List<FalloUnico>();
+
+        using var conexion = new SqliteConnection(_cadenaConexion);
+        conexion.Open();
+
+        using var cmd = new SqliteCommand(
+            "SELECT DISTINCT numero_pregunta, enunciado, tema, respuesta_correcta FROM fallos ORDER BY tema, numero_pregunta", conexion);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            fallos.Add(new FalloUnico
+            {
+                NumeroPregunta = reader.GetInt32(0),
+                Enunciado = reader.GetString(1),
+                Tema = reader.GetString(2),
+                RespuestaCorrecta = reader.GetString(3)[0]
+            });
+        }
+
+        return fallos;
+    }
+
+    public int TotalFallosUnicos()
+    {
+        using var conexion = new SqliteConnection(_cadenaConexion);
+        conexion.Open();
+
+        using var cmd = new SqliteCommand(
+            "SELECT COUNT(DISTINCT enunciado) FROM fallos", conexion);
+        return Convert.ToInt32(cmd.ExecuteScalar());
+    }
 }

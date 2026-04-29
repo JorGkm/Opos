@@ -24,6 +24,10 @@ namespace Opos
             "Duro (2 mal restan 1)",
             "Muerte súbita (1 mal resta 1)"
         };
+        public bool AleatorizarPreguntas { get; set; }
+        public bool AleatorizarOpciones { get; set; }
+        public bool ModoRepaso { get; set; }
+
         public List<string>? Temas => _examen.preguntasExamen?
             .Select(p => string.IsNullOrWhiteSpace(p.NombreTema) ? p.Tema : $"{p.Tema} - {p.NombreTema}")
             .Distinct()
@@ -37,6 +41,14 @@ namespace Opos
             _examen = ex;
             _bd = bd;
             PreguntasSeleccionadas = ex.preguntasExamen ?? new List<Pregunta>();
+        }
+
+        public Test(List<Pregunta> preguntasRepaso, GestorBD bd)
+        {
+            _examen = new Examen(preguntasRepaso);
+            _bd = bd;
+            ModoRepaso = true;
+            PreguntasSeleccionadas = preguntasRepaso;
         }
 
         public void Filtrar(string temaElegido)
@@ -60,6 +72,12 @@ namespace Opos
                 return;
             }
 
+            if (AleatorizarPreguntas)
+            {
+                Random rng = new();
+                PreguntasSeleccionadas = PreguntasSeleccionadas.OrderBy(_ => rng.Next()).ToList();
+            }
+
             List<decimal> tiempos = [];
             List<Pregunta> preguntasFalladas = new();
 
@@ -72,7 +90,7 @@ namespace Opos
             for (int i = 0; i < PreguntasSeleccionadas.Count; i++)
             {
                 var preg = PreguntasSeleccionadas[i];
-                char respuestaUsuario = LeerRespuesta(preg, i + 1, out decimal tiempoPregunta);
+                char respuestaUsuario = LeerRespuesta(preg, i + 1, out decimal tiempoPregunta, out char respuestaCorrectaReal);
                 tiempos.Add(tiempoPregunta);
 
                 if (respuestaUsuario == 'S')
@@ -81,7 +99,7 @@ namespace Opos
                     continue;
                 }
 
-                if (respuestaUsuario == preg.RespuestaCorrecta)
+                if (respuestaUsuario == respuestaCorrectaReal)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("\n¡CORRECTO!");
@@ -90,7 +108,7 @@ namespace Opos
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"\nFALLASTE. La correcta era la {preg.RespuestaCorrecta}");
+                    Console.WriteLine($"\nFALLASTE. La correcta era la {respuestaCorrectaReal}");
                     fallos++;
                     preguntasFalladas.Add(preg);
                 }
@@ -102,9 +120,11 @@ namespace Opos
             _examen.cronoExamen.Stop();
             (double nota, double notaSinPen) = CalculoNota(aciertos, fallos, saltos);
 
-            string temaFiltro = PreguntasSeleccionadas.Count < (_examen.preguntasExamen?.Count ?? 0)
-                ? PreguntasSeleccionadas[0].Tema + (PreguntasSeleccionadas[0].NombreTema != null ? $" - {PreguntasSeleccionadas[0].NombreTema}" : "")
-                : "Todos los temas";
+            string temaFiltro = ModoRepaso
+                ? "Repaso de fallos"
+                : PreguntasSeleccionadas.Count < (_examen.preguntasExamen?.Count ?? 0)
+                    ? PreguntasSeleccionadas[0].Tema + (PreguntasSeleccionadas[0].NombreTema != null ? $" - {PreguntasSeleccionadas[0].NombreTema}" : "")
+                    : "Todos los temas";
 
             var resultado = new ExamenResultado
             {
@@ -125,12 +145,31 @@ namespace Opos
             MostrarResultadosFinales(aciertos, fallos, saltos, tiempos, nota, notaSinPen);
         }
 
-        private char LeerRespuesta(Pregunta preg, int numeroActual, out decimal tiempoFinal)
+        private char LeerRespuesta(Pregunta preg, int numeroActual, out decimal tiempoFinal, out char respuestaCorrectaReal)
         {
-            int opcionSeleccionada = 0;
-            List<string> opciones = new(preg.Opciones.Select((o, i) => $"{(char)('A' + i)}) {o}").ToList());
+            List<string> opcionesTexto = new(preg.Opciones);
+
+            if (AleatorizarOpciones)
+            {
+                Random rng = new();
+                int n = opcionesTexto.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int k = rng.Next(n + 1);
+                    (opcionesTexto[k], opcionesTexto[n]) = (opcionesTexto[n], opcionesTexto[k]);
+                }
+            }
+
+            int idxCorrecta = opcionesTexto.IndexOf(preg.Opciones[preg.RespuestaCorrecta - 'A']);
+            respuestaCorrectaReal = (char)('A' + idxCorrecta);
+
+            List<string> opciones = new();
+            for (int i = 0; i < opcionesTexto.Count; i++)
+                opciones.Add($"{(char)('A' + i)}) {opcionesTexto[i]}");
             opciones.Add("[Saltar]");
 
+            int opcionSeleccionada = 0;
             bool respondido = false;
             char respuesta = ' ';
             Stopwatch timer = new();
@@ -173,14 +212,7 @@ namespace Opos
                         opcionSeleccionada = (opcionSeleccionada == opciones.Count - 1) ? 0 : opcionSeleccionada + 1;
                         break;
                     case ConsoleKey.Enter:
-                        if (opcionSeleccionada < opciones.Count - 1)
-                        {
-                            respuesta = (char)('A' + opcionSeleccionada);
-                        }
-                        else
-                        {
-                            respuesta = 'S';
-                        }
+                        respuesta = opciones[opcionSeleccionada][0];
                         respondido = true;
                         break;
                     case ConsoleKey.Spacebar:
@@ -207,6 +239,8 @@ namespace Opos
         {
             Console.Clear();
             Console.WriteLine("======= EXAMEN FINALIZADO =======");
+            if (ModoRepaso)
+                Console.WriteLine("        MODO REPASO DE FALLOS");
             Console.WriteLine($"Aciertos: {a}");
             Console.WriteLine($"Fallos: {f}");
             Console.WriteLine($"Abstenciones: {s}");

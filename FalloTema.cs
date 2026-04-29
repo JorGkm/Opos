@@ -15,3 +15,11 @@ public class PreguntaFrecuente
     public char RespuestaCorrecta { get; set; }
     public int Fallos { get; set; }
 }
+
+public class FalloUnico
+{
+    public int NumeroPregunta { get; set; }
+    public string Enunciado { get; set; } = string.Empty;
+    public string Tema { get; set; } = string.Empty;
+    public char RespuestaCorrecta { get; set; }
+}

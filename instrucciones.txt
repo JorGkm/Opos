@@ -76,4 +76,18 @@ Selección directa:
   • Top 10 preguntas más falladas con su respuesta correcta
 - Los datos se guardan en una base de datos local (opos.db)
 
+7. MODO REPASO DE FALLOS
+─────────────────────────
+- Al iniciar un test, elige "Repaso de fallos"
+- Opos recuperará todas las preguntas que has fallado anteriormente
+- Solo incluye preguntas que coincidan con el archivo cargado
+- Ideal para reforzar tus puntos débiles
+
+8. ALEATORIZAR PREGUNTAS
+────────────────────────
+- Antes de cada test puedes elegir aleatorizar:
+  • Preguntas: cambia el orden en que aparecen
+  • Opciones: mezcla el orden de A/B/C/D en cada pregunta
+- Evita memorizar la posición y fuerza el aprendizaje real
+
 ══════════════════════════════════════════

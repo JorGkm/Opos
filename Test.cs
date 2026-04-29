@@ -24,7 +24,7 @@ namespace Opos
             "Muerte súbita (1 mal resta 1)"
         };
         public List<string>? Temas => _examen.preguntasExamen?
-            .Select(p => p.Tema)
+            .Select(p => string.IsNullOrWhiteSpace(p.NombreTema) ? p.Tema : $"{p.Tema} - {p.NombreTema}")
             .Distinct()
             .OrderBy(t => t)
             .ToList();
@@ -42,7 +42,9 @@ namespace Opos
             if (_examen.preguntasExamen == null) return;
 
             PreguntasSeleccionadas = _examen.preguntasExamen
-                .Where(p => p.Tema == temaElegido)
+                .Where(p => string.IsNullOrWhiteSpace(p.NombreTema)
+                    ? p.Tema == temaElegido
+                    : $"{p.Tema} - {p.NombreTema}" == temaElegido)
                 .ToList();
         }
 
@@ -56,7 +58,6 @@ namespace Opos
                 return;
             }
 
-            Stopwatch tiempoRespuesta = new();
             List<decimal> tiempos = [];
 
             int aciertos = 0;
@@ -65,31 +66,11 @@ namespace Opos
 
             _examen.cronoExamen.Start();
 
-            foreach (var preg in PreguntasSeleccionadas)
+            for (int i = 0; i < PreguntasSeleccionadas.Count; i++)
             {
-                Console.Clear();
-                Console.WriteLine($"Tema: {preg.Tema} | Pregunta Nº {preg.NumeroPregunta}/{PreguntasSeleccionadas.Count}");
-                Console.WriteLine(new string('-', 30));
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"{preg.Enunciado}\n");
-                Console.ResetColor();
-
-                char letra = 'A';
-                foreach (var opcion in preg.Opciones)
-                {
-                    Console.WriteLine($"{letra}) {opcion}");
-                    letra++;
-                }
-
-                Console.Write("\nTu respuesta (A, B, C, D o 'S' para Saltar): ");
-
-                tiempoRespuesta.Start();
-
-                char respuestaUsuario = char.ToUpper(Console.ReadKey(true).KeyChar);
-
-                tiempoRespuesta.Stop();
-                tiempos.Add((decimal)tiempoRespuesta.Elapsed.TotalSeconds);
-                tiempoRespuesta.Reset();
+                var preg = PreguntasSeleccionadas[i];
+                char respuestaUsuario = LeerRespuesta(preg, i + 1, out decimal tiempoPregunta);
+                tiempos.Add(tiempoPregunta);
 
                 if (respuestaUsuario == 'S')
                 {
@@ -116,6 +97,83 @@ namespace Opos
 
             _examen.cronoExamen.Stop();
             MostrarResultadosFinales(aciertos, fallos, saltos, tiempos);
+        }
+
+        private char LeerRespuesta(Pregunta preg, int numeroActual, out decimal tiempoFinal)
+        {
+            int opcionSeleccionada = 0;
+            List<string> opciones = new(preg.Opciones.Select((o, i) => $"{(char)('A' + i)}) {o}").ToList());
+            opciones.Add("[Saltar]");
+
+            bool respondido = false;
+            char respuesta = ' ';
+            Stopwatch timer = new();
+            timer.Start();
+
+            while (!respondido)
+            {
+                Console.Clear();
+                Console.WriteLine($"Tema: {preg.Tema}{(preg.NombreTema != null ? $" - {preg.NombreTema}" : "")} | Pregunta Nº {numeroActual}/{PreguntasSeleccionadas.Count}");
+                Console.WriteLine(new string('-', 50));
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"{preg.Enunciado}\n");
+                Console.ResetColor();
+
+                for (int i = 0; i < opciones.Count; i++)
+                {
+                    if (i == opcionSeleccionada)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Black;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"  > {opciones[i]}");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"    {opciones[i]}");
+                    }
+                }
+
+                Console.WriteLine("\n↑↓ Navegar | Enter Confirmar | Espacio Saltar | A/B/C/D Selección directa");
+
+                ConsoleKeyInfo tecla = Console.ReadKey(true);
+
+                switch (tecla.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        opcionSeleccionada = (opcionSeleccionada == 0) ? opciones.Count - 1 : opcionSeleccionada - 1;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        opcionSeleccionada = (opcionSeleccionada == opciones.Count - 1) ? 0 : opcionSeleccionada + 1;
+                        break;
+                    case ConsoleKey.Enter:
+                        if (opcionSeleccionada < opciones.Count - 1)
+                        {
+                            respuesta = (char)('A' + opcionSeleccionada);
+                        }
+                        else
+                        {
+                            respuesta = 'S';
+                        }
+                        respondido = true;
+                        break;
+                    case ConsoleKey.Spacebar:
+                        respuesta = 'S';
+                        respondido = true;
+                        break;
+                    case ConsoleKey.A:
+                    case ConsoleKey.B:
+                    case ConsoleKey.C:
+                    case ConsoleKey.D:
+                        respuesta = char.ToUpper(tecla.KeyChar);
+                        respondido = true;
+                        break;
+                }
+            }
+
+            timer.Stop();
+            tiempoFinal = (decimal)timer.Elapsed.TotalSeconds;
+            return respuesta;
         }
 
 

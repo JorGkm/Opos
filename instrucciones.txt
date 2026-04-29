@@ -4,10 +4,10 @@
 
 1. CREAR TU ARCHIVO DE PREGUNTAS
 ────────────────────────────────
-Crea un archivo de texto (.txt) en tu escritorio llamado "preguntas.txt"
-con el siguiente formato:
+Crea un archivo de texto (.txt) y ponle el nombre que quieras.
+El formato de las preguntas debe ser:
 
-TEMA 1
+TEMA 1 - La Constitución Española
 1. ¿Cuál es la capital de España?
 a) Barcelona
 b) Madrid
@@ -25,23 +25,40 @@ PREG 1 - RESP: B
 PREG 2 - RESP: B
 
 2. FORMATO OBLIGATORIO
-────────────────────────
+──────────────────────
+- Los temas se declaran con: TEMA <número>
+- Opcionalmente puedes añadir un nombre al tema:
+    TEMA 1 - La Constitución Española
+    TEMA 2: Derechos Fundamentales
+    TEMA 3 — Organización del Estado
 - Las preguntas deben empezar con número seguido de punto o guión: "1. " o "1- "
 - Las opciones deben usar letras a) b) c) d)
 - El separador de respuestas es exactamente: ### RESPUESTAS ###
-- Para separar temas usa: TEMA 1, TEMA 2, etc.
 - Las respuestas se pueden escribir en formato tabla
 
 3. USAR OPOS
 ────────────
-- Selecciona "Cargar" y pega la ruta de tu archivo .txt
+- Selecciona "Cargar" e introduce la ruta de tu archivo .txt
   (también puedes arrastrar el archivo a la consola)
 - Si el archivo tiene varios temas, podrás elegir un tema concreto
 - Elige el tipo de penalización que prefieras
-- Responde cada pregunta con A, B, C, D o S para saltar
+- Responde cada pregunta (ver controles abajo)
 - Al finalizar verás tus resultados detallados
 
-4. TIPOS DE PENALIZACIÓN
+4. CONTROLES DURANTE EL TEST
+─────────────────────────────
+Ambos métodos funcionan al mismo tiempo:
+
+Navegación visual:
+  ↑ / ↓     Navegar entre opciones
+  Enter     Confirmar la opción seleccionada
+  Espacio   Saltar la pregunta
+
+Selección directa:
+  A / B / C / D     Responder directamente
+  S                 Saltar la pregunta
+
+5. TIPOS DE PENALIZACIÓN
 ─────────────────────────
 • Estándar     → Los fallos no restan
 • Oposición    → 3 fallos restan 1 acierto

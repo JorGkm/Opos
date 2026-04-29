@@ -37,11 +37,12 @@ namespace Opos
 
             var lineas = textoPreguntas.Split('\n');
             Pregunta? preguntaActual = null;
-            string temaActual = "General"; 
+            string temaActual = "General";
+            string? nombreTemaActual = null;
 
             Regex regexInicio = new Regex(@"^\s*(\d+)[\.\-](?!\d)\s*(.*)");
             Regex regexOpcion = new Regex(@"^([a-d])\)\s*(.*)", RegexOptions.IgnoreCase);
-            Regex regexTema = new Regex(@"^TEMA\s+(\d+)", RegexOptions.IgnoreCase);
+            Regex regexTema = new Regex(@"^TEMA\s+(\d+)\s*[-:—–]?\s*(.*)", RegexOptions.IgnoreCase);
 
             foreach (var l in lineas)
             {
@@ -52,6 +53,8 @@ namespace Opos
                 if (matchTema.Success)
                 {
                     temaActual = "Tema " + matchTema.Groups[1].Value;
+                    nombreTemaActual = matchTema.Groups[2].Value.Trim();
+                    if (string.IsNullOrEmpty(nombreTemaActual)) nombreTemaActual = null;
                     continue; 
                 }
 
@@ -67,7 +70,8 @@ namespace Opos
                     {
                         NumeroPregunta = int.Parse(matchPregunta.Groups[1].Value),
                         Enunciado = matchPregunta.Groups[2].Value,
-                        Tema = temaActual
+                        Tema = temaActual,
+                        NombreTema = nombreTemaActual
                     };
                 }
                 else if (matchOpcion.Success && preguntaActual != null)

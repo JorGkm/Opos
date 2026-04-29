@@ -19,7 +19,7 @@ public static class MenuUI
             if (!string.IsNullOrEmpty(banner))
                 Console.WriteLine(banner);
 
-            Console.WriteLine("\n Use arrow keys [↑/↓] to navigate and [Enter] to select:\n");
+            Console.WriteLine(I18n.T("nav_hint"));
             for (int i = 0; i < options.Count; i++)
             {
                 if (i == selectedIndex)

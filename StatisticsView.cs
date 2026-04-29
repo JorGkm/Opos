@@ -13,32 +13,32 @@ public static class StatisticsView
 
         if (totalExams == 0)
         {
-            Console.WriteLine("No exams recorded yet.");
-            Console.WriteLine("\nTake your first test to start tracking statistics!");
+            Console.WriteLine(I18n.T("stats_no_exams"));
+            Console.WriteLine(I18n.T("stats_first_test"));
             return;
         }
 
         Console.ForegroundColor = ConsoleColor.Cyan;
         Console.WriteLine("╔══════════════════════════════════════════╗");
-        Console.WriteLine("║         STATISTICS SUMMARY              ║");
+        Console.WriteLine(I18n.T("stats_title"));
         Console.WriteLine("╚══════════════════════════════════════════╝");
         Console.ResetColor();
 
-        Console.WriteLine($"\n  Total exams taken: {totalExams}");
-        Console.WriteLine($"  Average score:     {averageScore:N3}");
-        Console.WriteLine($"  Best score:        {bestScore:N3}");
-        Console.WriteLine($"  Worst score:       {worstScore:N3}");
+        Console.WriteLine(I18n.T("stats_total_exams", totalExams));
+        Console.WriteLine(I18n.T("stats_avg_score", averageScore));
+        Console.WriteLine(I18n.T("stats_best_score", bestScore));
+        Console.WriteLine(I18n.T("stats_worst_score", worstScore));
 
-        Console.WriteLine("\n\n══════════════════════════════════════════");
-        Console.WriteLine("   EXAM HISTORY (last 20)");
-        Console.WriteLine("══════════════════════════════════════════\n");
+        Console.WriteLine($"\n\n{I18n.T("stats_divider")}");
+        Console.WriteLine(I18n.T("stats_history_title"));
+        Console.WriteLine($"{I18n.T("stats_divider")}\n");
 
         var history = db.GetExamHistory(20);
         DisplayExamHistory(history);
 
-        Console.WriteLine("\n\n══════════════════════════════════════════");
-        Console.WriteLine("   WEAKEST TOPICS");
-        Console.WriteLine("══════════════════════════════════════════\n");
+        Console.WriteLine($"\n\n{I18n.T("stats_divider")}");
+        Console.WriteLine(I18n.T("stats_weakest_title"));
+        Console.WriteLine($"{I18n.T("stats_divider")}\n");
 
         var weakTopics = db.GetWeakestTopics();
         if (weakTopics.Count > 0)
@@ -47,17 +47,17 @@ public static class StatisticsView
             {
                 Console.Write($"  {topic.Topic,-35} ");
                 DisplayFailureBar(topic.FailureRate);
-                Console.WriteLine($"  ({topic.WrongAnswers} wrong)");
+                Console.WriteLine($"  {I18n.T("stats_wrong_label", topic.WrongAnswers)}");
             }
         }
         else
         {
-            Console.WriteLine("  Not enough data.");
+            Console.WriteLine(I18n.T("stats_not_enough_data"));
         }
 
-        Console.WriteLine("\n\n══════════════════════════════════════════");
-        Console.WriteLine("   MOST MISSED QUESTIONS (Top 10)");
-        Console.WriteLine("══════════════════════════════════════════\n");
+        Console.WriteLine($"\n\n{I18n.T("stats_divider")}");
+        Console.WriteLine(I18n.T("stats_missed_title"));
+        Console.WriteLine($"{I18n.T("stats_divider")}\n");
 
         var missedQuestions = db.GetMostMissedQuestions(10);
         if (missedQuestions.Count > 0)
@@ -66,20 +66,19 @@ public static class StatisticsView
             {
                 var question = missedQuestions[i];
                 Console.WriteLine($"  {i + 1}. [{question.Topic}] {question.QuestionText}");
-                Console.WriteLine($"     Missed: {question.TimesMissed} | Correct answer: {question.CorrectAnswer}");
+                Console.WriteLine(I18n.T("stats_missed_label", question.TimesMissed, question.CorrectAnswer));
                 Console.WriteLine();
             }
         }
         else
         {
-            Console.WriteLine("  Not enough data.");
+            Console.WriteLine(I18n.T("stats_not_enough_data"));
         }
     }
 
     private static void DisplayExamHistory(List<ExamResult> history)
     {
-        Console.WriteLine($"  {"Date",-16} {"Topic",-25} {"Score",-8} {"C/W/S",-10} {"Time",-8}");
-        Console.WriteLine($"  {"",-16} {"",-25} {"",-8} {"",-10} {"",-8}");
+        Console.WriteLine(I18n.T("stats_history_subheader"));
 
         foreach (var exam in history)
         {
@@ -114,7 +113,7 @@ public static class StatisticsView
 
     private static string TruncateTopic(string? topic)
     {
-        if (string.IsNullOrEmpty(topic)) return "General";
+        if (string.IsNullOrEmpty(topic)) return I18n.T("stats_general");
         return topic.Length > 25 ? topic[..22] + "..." : topic;
     }
 }

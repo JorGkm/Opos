@@ -10,6 +10,8 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        I18n.Initialize();
+
         StartMenu oposMenu = new();
         QuestionImporter importer = new();
         DatabaseManager db = new();
@@ -27,19 +29,22 @@ class Program
                     {
                         questionPool = await importer.LoadFromText(filePath);
                     }
-                    Console.WriteLine("\n[Opos] Press any key to continue");
+                    Console.WriteLine(I18n.T("press_key_continue"));
                     Console.ReadKey();
                     break;
 
                 case MenuOption.Start:
                     if (questionPool.Count > 0)
                     {
-                        List<string> examModes = new List<string> { "Standard Exam", "Failed Questions Review" };
+                        List<string> examModes = new List<string> {
+                            I18n.T("mode_standard"),
+                            I18n.T("mode_review")
+                        };
                         string chosenMode = MenuUI.ShowSelectionMenu(examModes);
 
                         TestSession? testSession;
 
-                        if (chosenMode == "Failed Questions Review")
+                        if (chosenMode == I18n.T("mode_review"))
                         {
                             TestSession? reviewSession = PrepareReview(questionPool, db);
                             if (reviewSession == null) break;
@@ -52,12 +57,12 @@ class Program
 
                             if (testSession.Topics != null && testSession.Topics?.Count > 1)
                             {
-                                List<string> topicOptions = new List<string> { "ALL TOPICS" };
+                                List<string> topicOptions = new List<string> { I18n.T("prompt_all_topics") };
                                 topicOptions.AddRange(testSession.Topics);
-                                Console.WriteLine("Multiple topics detected. What do you want to do?");
+                                Console.WriteLine(I18n.T("prompt_topics"));
                                 string userSelection = MenuUI.ShowSelectionMenu(topicOptions);
 
-                                if (userSelection != "ALL TOPICS")
+                                if (userSelection != I18n.T("prompt_all_topics"))
                                 {
                                     testSession.FilterByTopic(userSelection);
                                 }
@@ -66,47 +71,53 @@ class Program
 
                         Console.Clear();
                         List<string> shuffleOptions = new List<string> {
-                            "No shuffling",
-                            "Shuffle questions",
-                            "Shuffle answer options",
-                            "Shuffle both"
+                            I18n.T("shuffle_none"),
+                            I18n.T("shuffle_questions"),
+                            I18n.T("shuffle_options"),
+                            I18n.T("shuffle_both")
                         };
-                        Console.WriteLine("How do you want questions to be presented?");
+                        Console.WriteLine(I18n.T("prompt_shuffle"));
                         string chosenShuffle = MenuUI.ShowSelectionMenu(shuffleOptions);
 
-                        testSession.ShuffleQuestions = chosenShuffle.Contains("questions");
-                        testSession.ShuffleOptions = chosenShuffle.Contains("options");
+                        testSession.ShuffleQuestions = chosenShuffle.Contains("question", StringComparison.OrdinalIgnoreCase);
+                        testSession.ShuffleOptions = chosenShuffle.Contains("option", StringComparison.OrdinalIgnoreCase);
 
                         Console.Clear();
-                        Console.WriteLine("Select scoring system:");
-                        string chosenPenalty = MenuUI.ShowSelectionMenu(testSession.PenaltyOptions);
+                        Console.WriteLine(I18n.T("prompt_penalty"));
+                        string chosenPenalty = MenuUI.ShowSelectionMenu(testSession.GetPenaltyOptions());
 
                         testSession.Penalty = chosenPenalty switch
                         {
-                            "Opposition (3 wrong deduct 1)" => PenaltyMode.ThreeWrongOneRight,
-                            "Hard (2 wrong deduct 1)" => PenaltyMode.TwoWrongOneRight,
-                            "Sudden Death (1 wrong deduct 1)" => PenaltyMode.OneWrongOneRight,
+                            var s when s == I18n.T("penalty_opposition") => PenaltyMode.ThreeWrongOneRight,
+                            var s when s == I18n.T("penalty_hard") => PenaltyMode.TwoWrongOneRight,
+                            var s when s == I18n.T("penalty_sudden_death") => PenaltyMode.OneWrongOneRight,
                             _ => PenaltyMode.NoPenalty
                         };
                         testSession.StartExam();
                     }
                     else
                     {
-                        Console.WriteLine("\n[!] You must load questions first.");
-                        Console.WriteLine("\n[Opos] Press any key to continue");
+                        Console.WriteLine(I18n.T("error_no_questions"));
+                        Console.WriteLine(I18n.T("press_key_continue"));
                         Console.ReadKey();
                     }
                     break;
 
                 case MenuOption.Statistics:
                     StatisticsView.Show(db);
-                    Console.WriteLine("\n\n[Opos] Press any key to continue");
+                    Console.WriteLine(I18n.T("press_key_continue"));
                     Console.ReadKey();
                     break;
 
                 case MenuOption.Instructions:
                     ShowInstructions();
-                    Console.WriteLine("\n[Opos] Press any key to continue");
+                    Console.WriteLine(I18n.T("press_key_continue"));
+                    Console.ReadKey();
+                    break;
+
+                case MenuOption.Language:
+                    SelectLanguage();
+                    Console.WriteLine(I18n.T("press_key_continue"));
                     Console.ReadKey();
                     break;
 
@@ -117,14 +128,57 @@ class Program
         }
     }
 
+    private static void SelectLanguage()
+    {
+        Console.Clear();
+        Console.WriteLine("  Select language / Selecciona idioma\n");
+
+        bool selected = false;
+        int selectedIndex = I18n.CurrentLanguage == "en" ? 0 : 1;
+
+        while (!selected)
+        {
+            Console.SetCursorPosition(0, 0);
+            Console.CursorVisible = false;
+            Console.Clear();
+            Console.WriteLine("  Select language / Selecciona idioma\n");
+
+            string[] langs = { "en", "es" };
+            for (int i = 0; i < langs.Length; i++)
+            {
+                string check = (i == selectedIndex) ? I18n.T("checkbox_checked") : I18n.T("checkbox_unchecked");
+                string name = I18n.GetLanguageDisplayName(langs[i]);
+                Console.WriteLine($"  {check} {name}");
+            }
+
+            Console.WriteLine("\n  ↑↓ Navigate | Enter Confirm");
+
+            ConsoleKey key = Console.ReadKey(true).Key;
+
+            if (key == ConsoleKey.UpArrow)
+            {
+                selectedIndex = selectedIndex == 0 ? 1 : 0;
+            }
+            else if (key == ConsoleKey.DownArrow)
+            {
+                selectedIndex = selectedIndex == 1 ? 0 : 1;
+            }
+            else if (key == ConsoleKey.Enter)
+            {
+                selected = true;
+                I18n.SetLanguage(langs[selectedIndex]);
+            }
+        }
+    }
+
     private static TestSession? PrepareReview(List<Question> pool, DatabaseManager db)
     {
         int totalMisses = db.TotalUniqueMisses();
         if (totalMisses == 0)
         {
-            Console.WriteLine("\nNo missed questions recorded yet.");
-            Console.WriteLine("Take an exam first!");
-            Console.WriteLine("\n[Opos] Press any key to continue");
+            Console.WriteLine(I18n.T("error_no_misses"));
+            Console.WriteLine(I18n.T("error_no_misses_action"));
+            Console.WriteLine(I18n.T("press_key_continue"));
             Console.ReadKey();
             return null;
         }
@@ -154,15 +208,15 @@ class Program
 
         if (reviewQuestions.Count == 0)
         {
-            Console.WriteLine($"\nFound {totalMisses} misses, but they don't match the loaded questions.");
-            Console.WriteLine("Load the original question file to enable review mode.");
-            Console.WriteLine("\n[Opos] Press any key to continue");
+            Console.WriteLine(I18n.T("error_misses_no_match", totalMisses));
+            Console.WriteLine(I18n.T("error_misses_no_match_action"));
+            Console.WriteLine(I18n.T("press_key_continue"));
             Console.ReadKey();
             return null;
         }
 
-        Console.WriteLine($"\nFound {reviewQuestions.Count} questions for review out of {totalMisses} recorded misses.");
-        Console.WriteLine("\n[Opos] Press any key to continue");
+        Console.WriteLine(I18n.T("info_review_found", reviewQuestions.Count, totalMisses));
+        Console.WriteLine(I18n.T("press_key_continue"));
         Console.ReadKey();
 
         return new TestSession(reviewQuestions, db);
@@ -171,16 +225,16 @@ class Program
     private static string PromptFilePath()
     {
         Console.Clear();
-        Console.WriteLine("Enter the path to your questions file (.txt)");
-        Console.WriteLine("(You can paste the path or drag and drop the file here)\n");
-        Console.Write("Default path: ");
+        Console.WriteLine(I18n.T("prompt_load_questions"));
+        Console.WriteLine(I18n.T("prompt_drag_drop"));
+        Console.Write(I18n.T("prompt_default_path"));
 
         string defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "preguntas.txt");
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine(defaultPath);
         Console.ResetColor();
-        Console.WriteLine("\nPress Enter to use default, or type the path:");
-        Console.Write("Path> ");
+        Console.WriteLine(I18n.T("prompt_enter_path"));
+        Console.Write(I18n.T("prompt_path_label"));
         Console.ForegroundColor = ConsoleColor.Yellow;
         Console.CursorVisible = true;
 
@@ -192,7 +246,8 @@ class Program
     private static void ShowInstructions()
     {
         Console.Clear();
-        string? instructions = File.ReadAllText("instructions.txt");
+        string fileName = I18n.CurrentLanguage == "es" ? "instrucciones.txt" : "instructions.txt";
+        string? instructions = File.ReadAllText(fileName);
         Console.WriteLine(instructions);
     }
 }

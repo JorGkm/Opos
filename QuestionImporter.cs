@@ -15,7 +15,7 @@ public class QuestionImporter
         if (!File.Exists(filePath))
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"[CRITICAL] File not found: {filePath}");
+            Console.WriteLine(I18n.T("error_critical_file", filePath));
             Console.ResetColor();
             return questions;
         }
@@ -27,7 +27,7 @@ public class QuestionImporter
         if (parts.Length < 2)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\n[FORMAT ERROR] Cannot find '### RESPUESTAS ###'");
+            Console.WriteLine(I18n.T("error_format_answers"));
             Console.ResetColor();
         }
 
@@ -36,7 +36,7 @@ public class QuestionImporter
 
         var lines = questionsText.Split('\n');
         Question? currentQuestion = null;
-        string currentTopic = "General";
+        string currentTopic = I18n.T("stats_general");
         string? currentTopicName = null;
 
         Regex questionStartRegex = new Regex(@"^\s*(\d+)[\.\-](?!\d)\s*(.*)");
@@ -51,7 +51,7 @@ public class QuestionImporter
             var topicMatch = topicRegex.Match(trimmedLine);
             if (topicMatch.Success)
             {
-                currentTopic = "Topic " + topicMatch.Groups[1].Value;
+                currentTopic = I18n.T("topic_prefix", topicMatch.Groups[1].Value);
                 currentTopicName = topicMatch.Groups[2].Value.Trim();
                 if (string.IsNullOrEmpty(currentTopicName)) currentTopicName = null;
                 continue;
@@ -87,8 +87,8 @@ public class QuestionImporter
         }
         if (currentQuestion != null) questions.Add(currentQuestion);
 
-        Console.WriteLine($"\n -> Loaded file: {filePath}");
-        Console.WriteLine($" -> Questions read: {questions.Count}");
+        Console.WriteLine(I18n.T("info_loaded_file", filePath));
+        Console.WriteLine(I18n.T("info_questions_read", questions.Count));
 
         Dictionary<int, char> answers = new Dictionary<int, char>();
 
@@ -96,7 +96,7 @@ public class QuestionImporter
 
         Regex answerRegex = new Regex(@"(\d+)[\s\r\n]+([A-D])", RegexOptions.IgnoreCase | RegexOptions.Multiline);
         var matches = answerRegex.Matches(answersText);
-        Console.WriteLine($" -> Answers detected in table: {matches.Count}");
+        Console.WriteLine(I18n.T("info_answers_detected", matches.Count));
 
         foreach (Match match in matches)
         {
@@ -118,7 +118,7 @@ public class QuestionImporter
                 question.CorrectAnswer = '?';
             }
         }
-        Console.WriteLine($" -> Answers linked: {answersAssigned}");
+        Console.WriteLine(I18n.T("info_answers_linked", answersAssigned));
         return questions;
     }
 }

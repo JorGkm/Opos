@@ -19,15 +19,16 @@ public class TestSession
     private DatabaseManager _db;
 
     public PenaltyMode Penalty { get; set; } = PenaltyMode.NoPenalty;
-    public List<string> PenaltyOptions = new List<string> {
-        "Standard (No penalty)",
-        "Opposition (3 wrong deduct 1)",
-        "Hard (2 wrong deduct 1)",
-        "Sudden Death (1 wrong deduct 1)"
-    };
     public bool ShuffleQuestions { get; set; }
     public bool ShuffleOptions { get; set; }
     public bool IsReviewMode { get; set; }
+
+    public List<string> GetPenaltyOptions() => new List<string> {
+        I18n.T("penalty_standard"),
+        I18n.T("penalty_opposition"),
+        I18n.T("penalty_hard"),
+        I18n.T("penalty_sudden_death")
+    };
 
     public List<string>? Topics => _exam.Questions?
         .Select(q => string.IsNullOrWhiteSpace(q.TopicName) ? q.Topic : $"{q.Topic} - {q.TopicName}")
@@ -67,8 +68,8 @@ public class TestSession
     {
         if (SelectedQuestions == null || SelectedQuestions.Count == 0)
         {
-            Console.WriteLine("Error: No questions selected for the test.");
-            Console.WriteLine("\n[Opos] Press any key to continue");
+            Console.WriteLine(I18n.T("error_no_questions_selected"));
+            Console.WriteLine(I18n.T("press_key_continue"));
             Console.ReadKey();
             return;
         }
@@ -103,18 +104,18 @@ public class TestSession
             if (userAnswer == actualCorrectAnswer)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("\nCORRECT!");
+                Console.WriteLine(I18n.T("result_correct"));
                 correct++;
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"\nWRONG. The correct answer was {actualCorrectAnswer}");
+                Console.WriteLine(I18n.T("result_wrong", actualCorrectAnswer));
                 wrong++;
                 missedQuestions.Add(question);
             }
             Console.ResetColor();
-            Console.WriteLine("\nPress any key for the next question...");
+            Console.WriteLine(I18n.T("press_key_next"));
             Console.ReadKey();
         }
 
@@ -122,10 +123,19 @@ public class TestSession
         (double score, double rawScore) = CalculateScore(correct, wrong, skipped);
 
         string topicLabel = IsReviewMode
-            ? "Failed Questions Review"
+            ? I18n.T("mode_review")
             : SelectedQuestions.Count < (_exam.Questions?.Count ?? 0)
                 ? SelectedQuestions[0].Topic + (SelectedQuestions[0].TopicName != null ? $" - {SelectedQuestions[0].TopicName}" : "")
-                : "All Topics";
+                : I18n.T("prompt_all_topics");
+
+        string penaltyLabel = Penalty switch
+        {
+            PenaltyMode.NoPenalty => I18n.T("penalty_standard"),
+            PenaltyMode.ThreeWrongOneRight => I18n.T("penalty_opposition"),
+            PenaltyMode.TwoWrongOneRight => I18n.T("penalty_hard"),
+            PenaltyMode.OneWrongOneRight => I18n.T("penalty_sudden_death"),
+            _ => ""
+        };
 
         var result = new ExamResult
         {
@@ -137,7 +147,7 @@ public class TestSession
             Skipped = skipped,
             Score = score,
             RawScore = rawScore,
-            PenaltyMode = PenaltyOptions[(int)Penalty],
+            PenaltyMode = penaltyLabel,
             TimeSeconds = (int)_exam.Timer.Elapsed.TotalSeconds,
             AverageAnswerTime = (double)times.Average()
         };
@@ -168,7 +178,7 @@ public class TestSession
         List<string> options = new();
         for (int i = 0; i < optionTexts.Count; i++)
             options.Add($"{(char)('A' + i)}) {optionTexts[i]}");
-        options.Add("[Skip]");
+        options.Add(I18n.T("option_skip"));
 
         int selectedOption = 0;
         bool answered = false;
@@ -179,8 +189,11 @@ public class TestSession
         while (!answered)
         {
             Console.Clear();
-            Console.WriteLine($"Topic: {question.Topic}{(question.TopicName != null ? $" - {question.TopicName}" : "")} | Question Nº {currentNumber}/{SelectedQuestions.Count}");
-            Console.WriteLine(new string('-', 50));
+            string header = question.TopicName != null
+                ? I18n.T("question_header_with_name", question.Topic, question.TopicName, currentNumber, SelectedQuestions.Count)
+                : I18n.T("question_header", question.Topic, currentNumber, SelectedQuestions.Count);
+            Console.WriteLine(header);
+            Console.WriteLine(I18n.T("separator"));
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"{question.Text}\n");
             Console.ResetColor();
@@ -200,7 +213,7 @@ public class TestSession
                 }
             }
 
-            Console.WriteLine("\n↑↓ Navigate | Enter Confirm | Space Skip | A/B/C/D Direct answer");
+            Console.WriteLine(I18n.T("controls_hint"));
 
             ConsoleKeyInfo key = Console.ReadKey(true);
 
@@ -238,19 +251,19 @@ public class TestSession
     private void ShowResults(int correct, int wrong, int skipped, List<decimal> answerTimes, double score, double rawScore)
     {
         Console.Clear();
-        Console.WriteLine("======= EXAM COMPLETED =======");
+        Console.WriteLine(I18n.T("exam_completed"));
         if (IsReviewMode)
-            Console.WriteLine("     FAILED QUESTIONS REVIEW");
-        Console.WriteLine($"Correct: {correct}");
-        Console.WriteLine($"Wrong: {wrong}");
-        Console.WriteLine($"Skipped: {skipped}");
-        Console.WriteLine($"Raw score: {rawScore:F2} out of {correct + wrong + skipped} questions");
-        Console.WriteLine($"Final score: {score:N3}");
-        Console.WriteLine($"Time: {_exam.Timer.Elapsed:mm\\:ss}");
-        Console.WriteLine($"Average answer time: {answerTimes.Average():N2} seconds");
-        Console.WriteLine("==============================");
-        Console.WriteLine("\n[!] Results saved to database");
-        Console.WriteLine("\n[Opos] Press any key to continue");
+            Console.WriteLine(I18n.T("exam_review_title"));
+        Console.WriteLine(I18n.T("result_correct_label", correct));
+        Console.WriteLine(I18n.T("result_wrong_label", wrong));
+        Console.WriteLine(I18n.T("result_skipped_label", skipped));
+        Console.WriteLine(I18n.T("result_raw_score", rawScore, correct + wrong + skipped));
+        Console.WriteLine(I18n.T("result_final_score", score));
+        Console.WriteLine(I18n.T("result_time", _exam.Timer.Elapsed.ToString("mm\\:ss")));
+        Console.WriteLine(I18n.T("result_avg_time", answerTimes.Average()));
+        Console.WriteLine(I18n.T("result_separator"));
+        Console.WriteLine(I18n.T("result_saved"));
+        Console.WriteLine(I18n.T("press_key_continue"));
         Console.ReadKey(true);
     }
 

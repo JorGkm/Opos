@@ -1,9 +1,9 @@
-╔══════════════════════════════════════════╗
-║          INSTRUCCIONES DE USO            ║
-╚══════════════════════════════════════════╝
+====================================================
+             INSTRUCCIONES DE USO
+====================================================
 
 1. CREAR TU ARCHIVO DE PREGUNTAS
-────────────────────────────────
+--------------------------------------------------
 Crea un archivo de texto (.txt) y ponle el nombre que quieras.
 El formato de las preguntas debe ser:
 
@@ -25,28 +25,28 @@ PREG 1 - RESP: B
 PREG 2 - RESP: B
 
 2. FORMATO OBLIGATORIO
-──────────────────────
+--------------------------------------------------
 - Los temas se declaran con: TEMA <número>
-- Opcionalmente puedes añadir un nombre al tema:
+- Opcionalmente añade un nombre al tema:
     TEMA 1 - La Constitución Española
     TEMA 2: Derechos Fundamentales
     TEMA 3 — Organización del Estado
 - Las preguntas deben empezar con número seguido de punto o guión: "1. " o "1- "
-- Las opciones deben usar letras a) b) c) d)
+- Las opciones deben usar letras: a) b) c) d)
 - El separador de respuestas es exactamente: ### RESPUESTAS ###
 - Las respuestas se pueden escribir en formato tabla
 
 3. USAR OPOS
-────────────
+--------------------------------------------------
 - Selecciona "Cargar" e introduce la ruta de tu archivo .txt
-  (también puedes arrastrar el archivo a la consola)
+  (también puedes arrastrar y soltar el archivo en la consola)
 - Si el archivo tiene varios temas, podrás elegir un tema concreto
 - Elige el tipo de penalización que prefieras
 - Responde cada pregunta (ver controles abajo)
 - Al finalizar verás tus resultados detallados
 
 4. CONTROLES DURANTE EL TEST
-─────────────────────────────
+--------------------------------------------------
 Ambos métodos funcionan al mismo tiempo:
 
 Navegación visual:
@@ -54,19 +54,19 @@ Navegación visual:
   Enter     Confirmar la opción seleccionada
   Espacio   Saltar la pregunta
 
-Selección directa:
+Entrada directa:
   A / B / C / D     Responder directamente
   S                 Saltar la pregunta
 
 5. TIPOS DE PENALIZACIÓN
-─────────────────────────
+--------------------------------------------------
 • Estándar     → Los fallos no restan
 • Oposición    → 3 fallos restan 1 acierto
 • Duro         → 2 fallos restan 1 acierto
 • Muerte súbita→ 1 fallo resta 1 acierto
 
 6. ESTADÍSTICAS Y PROGRESO
-──────────────────────────
+--------------------------------------------------
 - Selecciona "Estadísticas" en el menú principal
 - Opos guarda automáticamente cada examen que realizas
 - Podrás ver:
@@ -77,17 +77,17 @@ Selección directa:
 - Los datos se guardan en una base de datos local (opos.db)
 
 7. MODO REPASO DE FALLOS
-─────────────────────────
+--------------------------------------------------
 - Al iniciar un test, elige "Repaso de fallos"
 - Opos recuperará todas las preguntas que has fallado anteriormente
 - Solo incluye preguntas que coincidan con el archivo cargado
 - Ideal para reforzar tus puntos débiles
 
 8. ALEATORIZAR PREGUNTAS
-────────────────────────
+--------------------------------------------------
 - Antes de cada test puedes elegir aleatorizar:
   • Preguntas: cambia el orden en que aparecen
   • Opciones: mezcla el orden de A/B/C/D en cada pregunta
 - Evita memorizar la posición y fuerza el aprendizaje real
 
-══════════════════════════════════════════
+====================================================

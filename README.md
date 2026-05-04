@@ -1,81 +1,199 @@
 <div align="center">
 <pre>
- $$$$$$\                                
-$$  __$$\                               
-$$ /  $$ | $$$$$$\   $$$$$$\   $$$$$$$\ 
-$$ |  $$ |$$  __$$\ $$  __$$\ $$  _____|
-$$ |  $$ |$$ /  $$ |$$ /  $$ |\$$$$$$\  
-$$ |  $$ |$$ |  $$ |$$ |  $$ | \____$$\ 
- $$$$$$  |$$$$$$$  |\$$$$$$  |$$$$$$$  |
- \______/ $$  ____/  \______/ \_______/ 
-          $$ |                          
-          $$ |                          
-          \__|                          
+  $$$$$$\
+ $$  __$$\
+ $$ /  $$ | $$$$$$\   $$$$$$\   $$$$$$$\
+ $$ |  $$ |$$  __$$\ $$  __$$\ $$  __$$\
+ $$ |  $$ |$$ /  $$ |$$ /  $$ |\$$$$$$\
+ $$ |  $$ |$$ |  $$ |$$ |  $$ | \____$$\
+  $$$$$$  |$$$$$$$  |\$$$$$$  |$$$$$$$  |
+  \______/ $$  ____/  \______/  \_______/
+           $$ |
+           $$ |
+           \__|
 </pre>
 </div>
 
-## Descripción 📋
+<h3 align="center">Console-based exam preparation tool for Spanish civil service exams</h3>
 
-Un asistente para sacarte tus tan preciadas oposiciones, si estás aburrido de la forma tradicional en la que se realizan los tipo test, de responder y luego ir una por una mirando cuales tienes bien o mal para finalmente hacer la operación adecuada y tener tus resultados. No te preocupes, Opos ya hace todo eso por ti y más...
-Un programa de consola muy sencillo pero no por ello menos práctico. Opos te permite darle un archivo de texto es decir un archivo.txt, el cual analizará mediante una estructura que se debe cumplir para que Opos cumpla bien su funcionamiento, no te preocupes es muy sencillo y lo explicaré más abajo. Se ocupa de recopilar todas las preguntas, opciones y tabla de respuestas que le metas en el archivo de texto, el mismo se encargará de organizarlas y vincular cada respuesta a su pregunta. 
-Te ofreze varias formas de estudiar, ya sea por temas separados o en todos los temas/preguntas que contenga el archivo de texto después de ello antes de realizar el test te preguntará que tipo de penalización deseas practicar, es decir podrás elegir distintas opciones, desde la más tranquila como que las respuestas erróneas no quiten, hasta la más desafiante como la eliminación de acierto por pregunta respondida de manera incorrecta.
-Finalmente cuando termines tu exámen serás informado con datos sobre tu eficacia en el test realizado, desde los aciertos y fallos como del tiempo por respuesta medio.
+<p align="center">
+  <a href="README.es.md">Versión en español</a>
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#-usage">Usage</a> •
+  <a href="#-file-format">File Format</a> •
+  <a href="#-controls">Controls</a> •
+  <a href="#-compatibility">Compatibility</a>
+</p>
+
+---
+
+## 📋 Features
+
+**Opos** is a lightweight, cross-platform console application designed to streamline your civil service exam preparation. Import questions from a simple text file, take practice tests with real-world scoring penalties, and track your progress over time — all from the terminal.
+
+### Study Modes
+- **Standard Exam** — Full topic selection or individual topics
+- **Failed Questions Review** — Automatically generates a test from every question you've previously answered incorrectly
+- **Topic Filtering** — Select specific topics from multi-topic question files
+- **Question & Option Shuffling** — Randomize question order and/or answer option positions to avoid memorization
+
+### Scoring & Penalties
+Choose from four scoring systems commonly used in official exams:
+
+| Mode | Penalty |
+|------|---------|
+| Standard | No penalty for wrong answers |
+| Opposition | 3 wrong answers deduct 1 correct |
+| Hard | 2 wrong answers deduct 1 correct |
+| Sudden Death | 1 wrong answer deducts 1 correct |
+
+### Statistics & Progress Tracking
+All results are stored in a local SQLite database:
+- **General Summary** — Total exams taken, average score, best & worst results
+- **Exam History** — Last 20 exams with date, topic, score, and completion time
+- **Weakest Topics** — Visual failure rate bars per topic
+- **Most Missed Questions** — Top 10 most frequently incorrect answers with correct letter
+
+### Performance Metrics
+- Real-time timer per question and overall exam
+- Average response time displayed at results screen
+
+---
+
+## 🚀 Installation
+
+### Requirements
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) or later
+
+### Build from Source
+```bash
+git clone https://github.com/JorGkm/Opos.git
+cd Opos
+dotnet build
+dotnet run
+```
+
+### Run Directly
+```bash
+dotnet run --project Opos.csproj
+```
+
+---
+
+## 📝 Usage
+
+### 1. Create Your Questions File
+Create a `.txt` file (e.g., `questions.txt`) on your desktop with the following format:
+
+```
+TOPIC 1 - The Spanish Constitution
+1. What is the capital of Spain?
+a) Barcelona
+b) Madrid
+c) Seville
+d) Valencia
+
+2. How many autonomous communities does Spain have?
+a) 15
+b) 17
+c) 19
+d) 20
+
+### RESPUESTAS ###
+PREG 1 - RESP: B
+PREG 2 - RESP: B
+```
+
+### 2. Load Questions
+From the main menu, select **"Load"** and provide the path to your `.txt` file. You can also drag and drop the file directly into the console.
+
+### 3. Configure & Start
+When you select **"Start"**, you'll be prompted to:
+1. **Choose exam mode** — Standard exam or failed questions review
+2. **Select topics** — All topics or a specific one (if multiple exist)
+3. **Choose shuffling** — Randomize questions, options, both, or neither
+4. **Set penalty mode** — Pick your scoring system
+
+### 4. Answer & Review
+Navigate through questions using the keyboard controls. After each question, you'll see instant feedback. At the end, a detailed results screen is shown and automatically saved.
+
+---
+
+## 📄 File Format
+
+### Required Structure
+| Element | Format |
+|----------|---------|
+| **Topic** | `TEMA <number>` |
+| **Topic name** (optional) | `TOPIC 1 - The Spanish Constitution`<br>`TOPIC 2: Fundamental Rights`<br>`TOPIC 3 — State Organization` |
+| **Question** | `<number>. <text>` or `<number>- <text>` |
+| **Options** | `a) <text>`<br>`b) <text>`<br>`c) <text>`<br>`d) <text>` |
+| **Answers separator** | `### RESPUESTAS ###` |
+| **Answers table** | `PREG 1 - RESP: B` or similar tabular format |
+
+---
+
+## 🎮 Controls
+
+During the test, both methods work simultaneously:
+
+**Visual Navigation:**
+| Key | Action |
+|-----|--------|
+| `↑` / `↓` | Navigate between options |
+| `Enter` | Confirm selected option |
+| `Space` | Skip the question |
+
+**Direct Input:**
+| Key | Action |
+|-----|--------|
+| `A` / `B` / `C` / `D` | Answer directly |
+| `S` | Skip the question |
+
+---
+
+## 📊 Statistics
+
+Select **"Statistics"** from the main menu to view:
+- Overall performance metrics
+- Color-coded exam history (green = pass, red = fail)
+- Weakest topics with failure rate visualization
+- Most frequently missed questions
+
+All data is stored in a local `opos.db` SQLite database in the application directory.
+
+---
+
+## 🖥️ Compatibility
+
+| Platform | Support |
+|----------|---------|
+| **Windows** | ✅ Full support |
+| **Linux** | ✅ Full support |
+| **macOS** | ✅ Full support |
+
+---
+
+## 📸 Screenshots
 
 <p align="center">
     <a href="Screenshots/OposMenu.PNG">
-        <img src="Screenshots/OposMenu.PNG" width="400" alt="OposMenu">
+        <img src="Screenshots/OposMenu.PNG" width="400" alt="Main Menu">
     </a>
 </p>
 
 <p align="center">
     <a href="Screenshots/OposPregunta.PNG">
-        <img src="Screenshots/OposPregunta.PNG" width="400" alt="OposPregunta">
+        <img src="Screenshots/OposPregunta.PNG" width="400" alt="Question Screen">
     </a>
 </p>
 
-## Instrucciones 📝
-Una vez hayas descargado Opos, simplemente debes de cread en tu escritorio un archivo de texto, a este le llamaremos preguntas.txt.
-Dentro de este archivo copiaremos y pegaremos las preguntas y respuestas en el siguiente formato:
+---
 
-<p align="center">
-    <a href="Screenshots/OposTxtCap.PNG">
-        <img src="Screenshots/OposTxtCap.PNG" width="400" alt="OposTxtCap">
-    </a>
-</p>
+## 📄 License
 
-<p align="center">
-    <a href="Screenshots/OposTxtCap2.PNG">
-        <img src="Screenshots/OposTxtCap2.PNG" width="400" alt="OposTxtCap2">
-    </a>
-</p>
-
-Ejecuta Opos y antes de iniciar deberás cargarle el archivo mediante la opción "Cargar" en el menu de inicio:
-
-<p align="center">
-    <a href="Screenshots/OposCargar.PNG">
-        <img src="Screenshots/OposCargar.PNG" width="400" alt="OposCargar">
-    </a>
-</p>
-
-Después te pedirá, en caso de que encuentre temarios distintos, que eligas si quieres un tema en particular o todas las preguntas del archivo de texto.
-A continuación muestro un ejemplo:
-
-<p align="center">
-    <a href="Screenshots/OposTemas.PNG">
-        <img src="Screenshots/OposTemas.PNG" width="400" alt="OposTemas">
-    </a>
-</p>
-
-Luego tocará elegir que tipo de penalización deseas tener en el tipo test que vas a realizar, teniendo disponible las opciones más comunes en los exámenes:
-
-<p align="center">
-    <a href="Screenshots/OposPenalizacion.PNG">
-        <img src="Screenshots/OposPenalizacion.PNG" width="400" alt="OposPenalizacion">
-    </a>
-</p>
-
-## Compatibilidad
-
-* **Windows** 💻
-* **Linux** 🐧
-* **MacOS** 🍎
+This project is licensed under the terms of the [LICENSE](LICENSE) file.

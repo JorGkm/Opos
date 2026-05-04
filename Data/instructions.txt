@@ -3,7 +3,7 @@
 ====================================================
 
 1. CREATE YOUR QUESTIONS FILE
-─────────────────────────────
+--------------------------------------------------
 Create a text file (.txt) and name it anything you like.
 The question format must be:
 
@@ -25,7 +25,7 @@ PREG 1 - RESP: B
 PREG 2 - RESP: B
 
 2. REQUIRED FORMAT
-──────────────────
+--------------------------------------------------
 - Topics are declared with: TEMA <number>
 - Optionally add a topic name:
     TEMA 1 - The Spanish Constitution
@@ -37,7 +37,7 @@ PREG 2 - RESP: B
 - Answers can be written in table format
 
 3. USING OPOS
-─────────────
+--------------------------------------------------
 - Select "Load" and enter the path to your .txt file
   (you can also drag and drop the file into the console)
 - If the file has multiple topics, you can choose a specific one
@@ -46,7 +46,7 @@ PREG 2 - RESP: B
 - At the end you will see your detailed results
 
 4. TEST CONTROLS
-─────────────────
+--------------------------------------------------
 Both methods work simultaneously:
 
 Visual Navigation:
@@ -59,14 +59,14 @@ Direct Input:
   S                 Skip the question
 
 5. PENALTY MODES
-─────────────────
+--------------------------------------------------
 • Standard       → Wrong answers don't deduct
 • Opposition     → 3 wrong deduct 1 correct
 • Hard           → 2 wrong deduct 1 correct
 • Sudden Death   → 1 wrong deduct 1 correct
 
 6. STATISTICS & PROGRESS
-─────────────────────────
+--------------------------------------------------
 - Select "Statistics" from the main menu
 - Opos automatically saves every exam you take
 - You can view:
@@ -77,14 +77,14 @@ Direct Input:
 - Data is stored in a local database (opos.db)
 
 7. FAILED QUESTIONS REVIEW
-───────────────────────────
+--------------------------------------------------
 - When starting a test, choose "Failed Questions Review"
 - Opos will retrieve all questions you have previously answered incorrectly
 - Only includes questions matching the loaded file
 - Ideal for reinforcing your weak points
 
 8. SHUFFLE QUESTIONS
-────────────────────
+--------------------------------------------------
 - Before each test you can choose to shuffle:
   • Questions: changes the order they appear
   • Options: mixes A/B/C/D order for each question

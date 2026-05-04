@@ -9,7 +9,7 @@ public static class I18n
 {
     private static Dictionary<string, string> _translations = new();
     private static string _currentLanguage = "en";
-    private static string _jsonPath;
+    private static string _jsonPath = string.Empty;
 
     public static string CurrentLanguage => _currentLanguage;
 

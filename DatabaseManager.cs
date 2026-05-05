@@ -83,7 +83,7 @@ public class DatabaseManager
             cmd.Parameters.AddWithValue("@avgTime", result.AverageAnswerTime);
             cmd.ExecuteNonQuery();
 
-            int examId = Convert.ToInt32(new SqliteCommand("SELECT last_insert_rowid()", connection).ExecuteScalar());
+            int examId = Convert.ToInt32(new SqliteCommand("SELECT last_insert_rowid()", connection, transaction).ExecuteScalar());
 
             string insertFailure = """
                 INSERT INTO failures (exam_id, question_number, question_text, topic, correct_answer)

@@ -84,7 +84,7 @@ public static class StatisticsView
         {
             ConsoleColor color = exam.Score >= 5 ? ConsoleColor.Green : ConsoleColor.Red;
             Console.ForegroundColor = color;
-                Console.WriteLine($"  {exam.Date:dd/MM/yyyy HH:mm,-16} {TruncateTopic(exam.Topic),-25} {exam.Score:N3,-8} {exam.Correct}/{exam.Wrong}/{exam.Skipped,-10} {TimeSpan.FromSeconds(exam.TimeSeconds).ToString(@"mm\:ss"),-8}");
+                Console.WriteLine($"  {exam.Date,-16:dd/MM/yyyy HH:mm} {TruncateTopic(exam.Topic),-25} {exam.Score,-8:N3} {exam.Correct}/{exam.Wrong}/{exam.Skipped,-10} {TimeSpan.FromSeconds(exam.TimeSeconds),-8:mm\\:ss}");
             Console.ResetColor();
         }
     }

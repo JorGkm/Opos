@@ -160,14 +160,12 @@ public class DatabaseManager
             topics[topic] = new TopicFailure { Topic = topic, WrongAnswers = failures };
         }
 
-        using var cmdTotal = new SqliteCommand("SELECT topic, COUNT(*) as total FROM exams WHERE topic IS NOT NULL GROUP BY topic", connection);
-        using var readerTotal = cmdTotal.ExecuteReader();
-        while (readerTotal.Read())
+        using var cmdTotal = new SqliteCommand("SELECT COUNT(*) as total FROM exams", connection);
+        int totalExams = Convert.ToInt32(cmdTotal.ExecuteScalar());
+        
+        foreach (var topic in topics.Values)
         {
-            string topic = readerTotal.GetString(0);
-            int total = readerTotal.GetInt32(1);
-            if (topics.ContainsKey(topic))
-                topics[topic].TotalAttempts += total;
+            topic.TotalAttempts = totalExams;
         }
 
         return new List<TopicFailure>(topics.Values);

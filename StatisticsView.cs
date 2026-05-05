@@ -19,9 +19,7 @@ public static class StatisticsView
         }
 
         Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine("╔══════════════════════════════════════════╗");
         Console.WriteLine(I18n.T("stats_title"));
-        Console.WriteLine("╚══════════════════════════════════════════╝");
         Console.ResetColor();
 
         Console.WriteLine(I18n.T("stats_total_exams", totalExams));

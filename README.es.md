@@ -180,4 +180,16 @@ Todos los datos se almacenan en una base de datos SQLite local `opos.db` en el d
 Este proyecto está licenciado bajo los términos del archivo [LICENSE](LICENSE).
 
 ---
+
+## Historial de Versiones
+
+### v1.0.3
+- Corregido el parseo de respuestas para formato `PREG X - RESP: Y` (soporta multi-columna y una sola línea)
+- Añadida validación de respuestas inválidas para evitar crashes
+- Mejoradas las estadísticas: cabecera duplicada corregida, formato de TimeSpan, y cálculo de temas débiles
+
+### v1.0.0
+- Primera versión estable con examen completo, estadísticas, i18n y aleatorización
+
+---
 For English documentation, see [README.md](README.md)

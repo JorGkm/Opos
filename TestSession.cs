@@ -172,8 +172,18 @@ public class TestSession
             }
         }
 
-        int correctIndex = optionTexts.IndexOf(question.Options[question.CorrectAnswer - 'A']);
-        actualCorrectAnswer = (char)('A' + correctIndex);
+        if (question.CorrectAnswer < 'A' || question.CorrectAnswer > 'D' || question.CorrectAnswer - 'A' >= optionTexts.Count)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(I18n.T("error_answer_invalid", question.QuestionNumber, question.CorrectAnswer));
+            Console.ResetColor();
+            actualCorrectAnswer = '?';
+        }
+        else
+        {
+            int correctIndex = optionTexts.IndexOf(question.Options[question.CorrectAnswer - 'A']);
+            actualCorrectAnswer = (char)('A' + correctIndex);
+        }
 
         List<string> options = new();
         for (int i = 0; i < optionTexts.Count; i++)

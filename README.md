@@ -180,4 +180,16 @@ All data is stored in a local `opos.db` SQLite database in the application direc
 This project is licensed under the terms of the [LICENSE](LICENSE) file.
 
 ---
+
+## Changelog
+
+### v1.0.3
+- Fixed answer parsing for `PREG X - RESP: Y` format (multi-column and single-line formats now supported)
+- Added validation for invalid answer characters to prevent crashes
+- Improved statistics: fixed duplicate header, TimeSpan formatting, and weak topic calculation
+
+### v1.0.0
+- First stable release with full exam, statistics, i18n, and shuffle features
+
+---
 For Spanish documentation, see [README.es.md](README.es.md)

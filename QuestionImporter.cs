@@ -94,7 +94,7 @@ public class QuestionImporter
 
         answersText = answersText.Replace("PREG", "").Replace("RESP", "").Replace("Página", "");
 
-        Regex answerRegex = new Regex(@"(\d+)[\s\r\n]+([A-D])", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        Regex answerRegex = new Regex(@"(\d+)[\s\-:]+([A-D])", RegexOptions.IgnoreCase);
         var matches = answerRegex.Matches(answersText);
         Console.WriteLine(I18n.T("info_answers_detected", matches.Count));
 
